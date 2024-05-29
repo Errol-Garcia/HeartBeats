@@ -5,6 +5,7 @@ import joblib
 from flask_cors import CORS
 import preprocesamiento
 import os
+import tensorflow as tf
 
 app=Flask(__name__)
 CORS(app)
@@ -69,12 +70,54 @@ def fit():
     data =  request.get_json()
 
     file_names = data['fileNames']
-    preprocesamiento.inicio()
-    # path="./model_CNN1D.model"
-    # model=joblib.load(path)
+    register_name = file_names[1].split('.')[0]
+    print("NOMBRE DEL ARCHIVO",register_name)
+    dts, etq =preprocesamiento.inicio( file_names[1].split('.')[0])
+    X_new = np.loadtxt(f"C:/wamp64/www/Detector-de-arritmias/files/datos-{register_name}.dat")
+
+    num_shape = X_new.shape[0]
+
+    # Verificar el tamaño del array
+    print("Tamaño original de X_new:", X_new.size)
+    print("Forma original de X_new:", X_new.shape)
+    print("X_new[0]:", X_new.shape[0])
+    print("X_new[1]:", X_new.shape[1])
+
+        
+    # num_samples = X_new.size // (599 * 1)
+    # print("Número de muestras calculadas:", num_samples)
+
+    # X_new = X_new.reshape((num_samples, 599, 1))
+
+    try:
+        X_new = X_new.reshape((num_shape, 572, 1))
+    except ValueError as e:
+        print("Error al reestructurar el array:", e)
+        # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
+        exit(1)
+
+    # etq = "C:/wamp64/www/Detector-de-arritmias/files/etiquetas.dat"
+
+    # dts = np.array(dts)
+    # etq = np.array(etq)
+
+    path="C:/wamp64/www/Detector-de-arritmias/api/modelo_CNN1D (100).h5"
+    model= tf.keras.models.load_model(path)
+    
+    print("X_New:",X_new)
+    predictions = model.predict(X_new)
+    
+    predicted_classes = np.argmax(predictions, axis=1)
+
+    # Mostrar las predicciones
+    print(predicted_classes)
+
+    # # df=pd.DataFrame([dts], dtype=etq)
+
     # predict=model.predict(df)
     # print("Esto es aleatorio:",predict)
     # return str(round(predict[0], 2))
+    
     # return jsonify({"response": "la respuesta es:"})
     return jsonify({"message": "Archivos recibidos", "files": file_names})
 

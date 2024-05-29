@@ -2,7 +2,7 @@ import numpy as np
 from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
 
 
-def inicio():
+def inicio(nombreArchivo):
     #se definen Variables
     etq=[]
     dts=[]
@@ -13,17 +13,16 @@ def inicio():
     datosSegmentados=[]
 
 
-    re = 1
     datosSeg=[]
     etiquetas1=[]
 
     # pdb.set_trace()
     #se llama a los registros
-    raw_data, id_events=llamado(re)
+    raw_data, id_events=llamado(nombreArchivo)
     #se normaliza
     data_normal=normalizacion(raw_data)
     #se hace uso del detector QRS
-    qrs_locs=detectorQRS(re)
+    qrs_locs=detectorQRS(nombreArchivo)
 
     #se hace uso de los indices arrojados por el detector QRS
     p=segmentacion(data_normal, qrs_locs)
@@ -70,6 +69,8 @@ def inicio():
     #Se guarda los datos
     # np.savetxt('././files/datos.dat',dtsCom)
     # np.savetxt('././files/etiquetas.dat',etqCom)
-    np.savetxt('C:/wamp64/www/Detector-de-arritmias/files/datos.dat',dtsCom)
-    np.savetxt('C:/wamp64/www/Detector-de-arritmias/files/etiquetas.dat',etqCom)
+    np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/datos-{nombreArchivo}.dat',dtsCom)
+    np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{nombreArchivo}.dat',etqCom)
+
+    return dtsCom,etqCom
 

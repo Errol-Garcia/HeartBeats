@@ -121,8 +121,8 @@ $(document).ready(function () {
       contentType: "application/json",
       processData: false,
       success: function (response) {
-        $("#response_load").html(response);
-        $(".i_load_data").attr("style", "color: #1cc88a !important;");
+        // $("#response_load").html(response);
+        // $(".i_load_data").attr("style", "color: #1cc88a !important;");
       },
       error: function (xhr, status, error) {
         console.error("Error en la solicitud: " + status + ", " + error);

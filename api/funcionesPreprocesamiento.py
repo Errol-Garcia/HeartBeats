@@ -11,7 +11,7 @@ def llamado(registr):
     # regist=100+registr
     # registro=str(regist)
     # registro = '../../files/100'
-    registro = 'C:/wamp64/www/Detector-de-arritmias/files/100'
+    registro = f'C:/wamp64/www/Detector-de-arritmias/files/{registr}'
     print(registro)
     size=650000
 
@@ -20,7 +20,7 @@ def llamado(registr):
     annotation = wfdb.rdann(registro,'atr',sampto=size)
 
     # wfdb.plot_wfdb(record=record,annotation=annotation,title=registro)
-    wfdb.plot_wfdb(record=record,title=registro)
+    # wfdb.plot_wfdb(record=record,title=registro)
     # wfdb.plot_wfdb(record=record)
     id_events=annotation.symbol#etiquetas
     raw_data=record.p_signal#datos sin procesar
@@ -48,7 +48,7 @@ def detectorQRS(registr):
     # registro=str(regist)
     
     # registro = '../../files/100'
-    registro = 'C:/wamp64/www/Detector-de-arritmias/files/100'
+    registro = f'C:/wamp64/www/Detector-de-arritmias/files/{registr}'
     record = wfdb.rdrecord(registro, channels=[0], physical=False)
     qrs_locs = processing.gqrs_detect(d_sig=record.d_signal[:,0], fs=record.fs, adc_gain=record.adc_gain[0], adc_zero=record.adc_zero[0])
 
