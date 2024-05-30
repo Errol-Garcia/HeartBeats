@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predicción de arritmias cardíacas</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-house"></i> Inicio</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container d-flex flex-column justify-content-center align-items-center h-100">
+      <div class="row d-flex flex-column justify-content-center align-items-center w-100">
+        <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
+          <div class="card w-75 mb-3">
+            <div class="card-body">
+              <h3 class="card-title text-center mb-3">Cargar Registros</h5>
+                <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
+                  <div class="mb-3">
+                    <label for="fileInput" class="form-label">Registro (.atr)</label>
+                    <input class="form-control" type="file" name="fileInput" id="fileInput" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="fileInput2" class="form-label">Registro (.hea)</label>
+                    <input class="form-control" type="file" name="fileInput2" id="fileInput2" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="fileInput3" class="form-label">Registro (.dat)</label>
+                    <input class="form-control" type="file" name="fileInput3" id="fileInput3" required>
+                  </div>
+                  <div class="w-100 text-end">
+                    <button type="submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-upload"></i>
+                      Cargar</button>
+                  </div>
+                </form>
+                <form id="form_predict_arrhythmia" class="d-none" action="#" method="post" novalidate="novalidate">
+
+                  <div class="row mb-3">
+                    <div class="col-12 text-end">
+                      <button type="submit" id="btn_submit2" class="btn btn-primary w-25">Predecir</button>
+                    </div>
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="sticky-footer bg-white">
+    <div class="container my-auto">
+      <div class="copyright text-center my-auto">
+        <span>Copyright &copy; Udenar 2024</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="js/main.js"></script>
+</body>
+
+</html>
