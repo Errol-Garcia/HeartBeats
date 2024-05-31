@@ -90,7 +90,7 @@ def fit():
     # X_new = X_new.reshape((num_samples, 599, 1))
 
     try:
-        X_new = X_new.reshape((num_shape, 572, 1))
+        X_new = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
     except ValueError as e:
         print("Error al reestructurar el array:", e)
         # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
@@ -101,7 +101,7 @@ def fit():
     # dts = np.array(dts)
     # etq = np.array(etq)
 
-    path="C:/wamp64/www/Detector-de-arritmias/api/modelo_CNN1D (100).h5"
+    path="C:/wamp64/www/Detector-de-arritmias/api/modelo_CNN1D.h5"
     model= tf.keras.models.load_model(path)
     
     print("X_New:",X_new)
@@ -110,7 +110,13 @@ def fit():
     predicted_classes = np.argmax(predictions, axis=1)
 
     # Mostrar las predicciones
-    print(predicted_classes)
+    print("Tamaño:", predicted_classes.size)
+    cont = 0
+    for i in predicted_classes:
+        if i==1:
+            cont += 1
+
+    print("hay: ", cont )
 
     # # df=pd.DataFrame([dts], dtype=etq)
 

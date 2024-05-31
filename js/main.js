@@ -7,28 +7,60 @@ $(document).ready(function () {
   var response2 = "";
   var response3 = "";
 
+  $.validator.addMethod(
+    "filesEqual",
+    function (value, element, params) {
+      // Obtener el nombre del archivo sin la extensión
+      function getFileNameWithoutExtension(fileInput) {
+        let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
+        return fileName;
+      }
+
+      // Obtener los nombres de los archivos sin la extensión
+      let fileInput1Name = getFileNameWithoutExtension(params[0]);
+      let fileInput2Name = getFileNameWithoutExtension(params[1]);
+      let fileInput3Name = getFileNameWithoutExtension(params[2]);
+
+      console.log("fileInput1Name:", fileInput1Name);
+      console.log("fileInput2Name:", fileInput2Name);
+      console.log("fileInput3Name:", fileInput3Name);
+
+      // Comprobar si los nombres son iguales
+      return (
+        fileInput1Name === fileInput2Name && fileInput1Name === fileInput3Name
+      );
+    },
+    "Todos los archivos deben tener el mismo nombre"
+  );
+
   console.log("pase por aquí 1");
   $("#form_upload_arrhythmia").validate({
     rules: {
       fileInput: {
         required: true,
+        filesEqual: ["#fileInput", "#fileInput2", "#fileInput3"], // Aplicar la regla personalizada
       },
       fileInput2: {
         required: true,
+        equalTo: "#fileInput",
       },
       fileInput3: {
         required: true,
+        equalTo: "#fileInput",
       },
     },
     messages: {
       fileInput: {
         required: "Por favor cargue un registro",
+        filesEqual: "Todos los archivos deben tener el mismo nombre",
       },
       fileInput2: {
         required: "Por favor cargue un registro",
+        equalTo: "Los archivos deben tener el mismo nombre",
       },
       fileInput3: {
         required: "Por favor cargue un registro",
+        equalTo: "Los archivos deben tener el mismo nombre",
       },
     },
     highlight: function (element, errorClass, validClass) {
@@ -141,11 +173,11 @@ $(document).ready(function () {
 // }
 
 function getStatusbtnSubmit() {
-  $("#btn_submit").attr("disabled", true);
-  $("#btn_submit").html(`
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Cargando...
-    `);
+  // $("#btn_submit").attr("disabled", true);
+  // $("#btn_submit").html(`
+  //       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+  //       Cargando...
+  //   `);
 }
 
 // function resetForm() {
@@ -154,3 +186,5 @@ function getStatusbtnSubmit() {
 //   $("#btn_submit").html("Predecir");
 //   window.location.href = "/Detector-de-arritmias/";
 // }
+
+function validateData(Data_name1, Data_name2, Data_name3) {}
