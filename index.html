@@ -14,7 +14,6 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -26,7 +25,7 @@
   </div>
 
   <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="#"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
 
@@ -47,12 +46,12 @@
   </header>
 
   <main>
-    <div class="container d-flex flex-column justify-content-center align-items-center h-100">
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
       <div class="row d-flex flex-column justify-content-center align-items-center w-100">
         <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
           <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
             <div class="card-body">
-              <h4 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h4>
+              <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
 
               <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
                 <!-- Registro (.atr) -->
@@ -61,7 +60,7 @@
                   <div class="custom-file">
                     <input type="file" class="form-control custom-file-input" name="fileInput" id="fileInput"
                       placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="customFile">Seleccionar</label>
+                    <label class="custom-file-label" for="fileInput">Seleccionar</label>
                   </div>
                 </div>
 
@@ -71,7 +70,7 @@
                   <div class="custom-file">
                     <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
                       placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="customFile">Seleccionar</label>
+                    <label class="custom-file-label" for="fileInput2">Seleccionar</label>
                   </div>
                 </div>
 
@@ -81,21 +80,33 @@
                   <div class="custom-file">
                     <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
                       placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="customFile">Seleccionar</label>
+                    <label class="custom-file-label" for="fileInput2">Seleccionar</label>
                   </div>
                 </div>
 
-                <div class="col-lg-12 text-end">
+                <div class="col-lg-12 text-end g-2">
                   <button type="submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-upload"></i>
                     Cargar</button>
+
+                  <button type="button" id="btn_clean" class="btn btn-danger w-25"><i class="fa-solid fa-eraser"></i>
+                    Limpiar</button>
                 </div>
               </form>
 
-              <h4 class="card-title text-center col-lg-12 mt-2 mb-2 d-none">Ritmo Cardiaco</h4>
+              <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
 
-              <form id="form_predict_arrhythmia" class="d-none" action="#" method="post" novalidate="novalidate">
+              <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
+                <div class="col-lg-12 text-center mb-2">
+                  <picture>
+                    <img class="rounded mx-auto d-block img-fluid img-thumbnail" src="image/Señal ECG.webp"
+                      alt="El electrocardiograma muestra una línea normal de latido cardíaco (ritmo sinusal). ECG. EKG. Signo vital. Símbolo de atención médica. Vector de stock"
+                      title="El electrocardiograma muestra una línea normal de latido cardíaco (ritmo sinusal). ECG. EKG. Signo vital. Símbolo de atención médica."
+                      width="100%" height="360" loading="lazy">
+                  </picture>
+                </div>
+
                 <div class="col-lg-12 text-end">
-                  <button type="submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-brain"></i>
+                  <button type=" submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-brain"></i>
                     Predecir</button>
                 </div>
               </form>
