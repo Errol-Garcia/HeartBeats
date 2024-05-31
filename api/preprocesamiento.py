@@ -70,7 +70,7 @@ def inicio(nombreArchivo):
     # np.savetxt('././files/datos.dat',dtsCom)
     # np.savetxt('././files/etiquetas.dat',etqCom)
     np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/datos-{nombreArchivo}.dat',dtsCom)
-    np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{nombreArchivo}.dat',etqCom)
+    # np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{nombreArchivo}.dat',etqCom)
 
     return dtsCom,etqCom
 

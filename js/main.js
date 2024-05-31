@@ -38,15 +38,15 @@ $(document).ready(function () {
     rules: {
       fileInput: {
         required: true,
-        filesEqual: ["#fileInput", "#fileInput2", "#fileInput3"], // Aplicar la regla personalizada
+        // filesEqual: ["#fileInput", "#fileInput2", "#fileInput3"], // Aplicar la regla personalizada
       },
       fileInput2: {
         required: true,
-        equalTo: "#fileInput",
+        // equalTo: "#fileInput",
       },
       fileInput3: {
         required: true,
-        equalTo: "#fileInput",
+        // equalTo: "#fileInput",
       },
     },
     messages: {
