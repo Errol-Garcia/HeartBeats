@@ -6,6 +6,7 @@ from flask_cors import CORS
 import preprocesamiento
 import os
 import tensorflow as tf
+import csv
 
 app=Flask(__name__)
 CORS(app)
@@ -72,7 +73,7 @@ def fit():
     
     np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{register_name}.dat',predicted_classes)
 
-    # Mostrar las predicciones
+# Mostrar las predicciones
     print("Tamaño:", predicted_classes.size)
     cont = 0
     for i in predicted_classes:
@@ -80,6 +81,15 @@ def fit():
             cont += 1
 
     print("hay: ", cont )
+
+    nombre_archivo = f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{register_name}.csv'
+
+    predicted_classes = [predicted_classes]
+    # Abrir el archivo en modo de escritura y escribir los datos
+    with open(nombre_archivo, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(predicted_classes)
+    
 
     # return jsonify({"response": "la respuesta es:"})
     return jsonify({"message": "Archivos recibidos", "files": file_names})

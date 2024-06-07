@@ -8,29 +8,43 @@ $(document).ready(function () {
   var response3 = "";
 
   $.validator.addMethod(
-    "filesEqual",
+    "extensionFile1",
     function (value, element, params) {
       // Obtener el nombre del archivo sin la extensión
-      function getFileNameWithoutExtension(fileInput) {
-        let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
-        return fileName;
+      var fileInput = value.split(".")[1];
+      if (fileInput == "atr") {
+        return true;
+      } else {
+        return false;
       }
-
-      // Obtener los nombres de los archivos sin la extensión
-      let fileInput1Name = getFileNameWithoutExtension(params[0]);
-      let fileInput2Name = getFileNameWithoutExtension(params[1]);
-      let fileInput3Name = getFileNameWithoutExtension(params[2]);
-
-      console.log("fileInput1Name:", fileInput1Name);
-      console.log("fileInput2Name:", fileInput2Name);
-      console.log("fileInput3Name:", fileInput3Name);
-
-      // Comprobar si los nombres son iguales
-      return (
-        fileInput1Name === fileInput2Name && fileInput1Name === fileInput3Name
-      );
     },
-    "Todos los archivos deben tener el mismo nombre"
+    "la extension no es la adecuada"
+  );
+  $.validator.addMethod(
+    "extensionFile2",
+    function (value, element, params) {
+      // Obtener el nombre del archivo sin la extensión
+      var fileInput = value.split(".")[1];
+      if (fileInput == "hea") {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    "la extension no es la adecuada"
+  );
+  $.validator.addMethod(
+    "extensionFile3",
+    function (value, element, params) {
+      // Obtener el nombre del archivo sin la extensión
+      var fileInput = value.split(".")[1];
+      if (fileInput == "dat") {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    "la extension no es la adecuada"
   );
 
   console.log("pase por aquí 1");
@@ -38,29 +52,29 @@ $(document).ready(function () {
     rules: {
       fileInput: {
         required: true,
-        // filesEqual: ["#fileInput", "#fileInput2", "#fileInput3"], // Aplicar la regla personalizada
+        extensionFile1: ["#fileInput"],
       },
       fileInput2: {
         required: true,
-        // equalTo: "#fileInput",
+        extensionFile2: ["#fileInput2"],
       },
       fileInput3: {
         required: true,
-        // equalTo: "#fileInput",
+        extensionFile3: ["#fileInput3"],
       },
     },
     messages: {
       fileInput: {
         required: "Por favor cargue un registro",
-        filesEqual: "Todos los archivos deben tener el mismo nombre",
+        extensionFile1: "La extensión no es la solicitada, debe ser (.atr)",
       },
       fileInput2: {
         required: "Por favor cargue un registro",
-        equalTo: "Los archivos deben tener el mismo nombre",
+        extensionFile2: "La extensión no es la solicitada, debe ser (.hea)",
       },
       fileInput3: {
         required: "Por favor cargue un registro",
-        equalTo: "Los archivos deben tener el mismo nombre",
+        extensionFile3: "La extensión no es la solicitada, debe ser (.dat)",
       },
     },
     highlight: function (element, errorClass, validClass) {
@@ -81,53 +95,41 @@ $(document).ready(function () {
     console.log("pase por aquí 2");
     e.preventDefault();
 
-    // if (isEmpty() == false) {
     getStatusbtnSubmit();
 
     var formData = new FormData();
-    // var formData2 = new FormData();
-    // var formData3 = new FormData();
 
     var fileInput = $("#fileInput")[0].files[0];
     var fileInput2 = $("#fileInput2")[0].files[0];
     var fileInput3 = $("#fileInput3")[0].files[0];
 
-    formData.append("file", fileInput);
-    formData.append("file2", fileInput2);
-    formData.append("file3", fileInput3);
+    console.log("fileInput1Name:", fileInput["name"].split(".")[0]);
+    console.log("fileInput2Name:", fileInput2["name"].split(".")[0]);
+    console.log("fileInput3Name:", fileInput3["name"].split(".")[0]);
 
-    $.ajax({
-      url: "http://127.0.0.1:5003/",
-      type: "POST",
-      data: formData,
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        response1 = response;
-        $("#response_load").html(response);
-        $(".i_load_data").attr("style", "color: #1cc88a !important;");
-      },
-    });
+    if (
+      fileInput["name"].split(".")[0] != fileInput2["name"].split(".")[0] ||
+      fileInput["name"].split(".")[0] != fileInput3["name"].split(".")[0]
+    ) {
+      mostarAlertaUpload();
+    } else {
+      formData.append("file", fileInput);
+      formData.append("file2", fileInput2);
+      formData.append("file3", fileInput3);
 
-    // $.post(
-    //   "http://localhost:5000/",
-    //   $("#form_upload_arrhythmia").serialize(),
-    //   function (data) {
-    //     Swal.fire({
-    //       title: "El precio de la vivienda es: $" + data,
-    //       icon: "success",
-    //       showConfirmButton: true,
-    //       confirmButtonText: "Ok",
-    //     }).then((result) => {
-    //       if (result.isConfirmed) {
-    //         resetForm();
-    //       } else {
-    //         resetForm();
-    //       }
-    //     });
-    //   }
-    // );
-    // }
+      $.ajax({
+        url: "http://127.0.0.1:5003/",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          response1 = response;
+          $("#response_load").html(response);
+          $(".i_load_data").attr("style", "color: #1cc88a !important;");
+        },
+      });
+    }
   });
 
   $("#form_predict_arrhythmia").submit(function (e) {
@@ -187,4 +189,31 @@ function getStatusbtnSubmit() {
 //   window.location.href = "/Detector-de-arritmias/";
 // }
 
-function validateData(Data_name1, Data_name2, Data_name3) {}
+function mostarAlertaUpload() {
+  // document.getElementById("alertNames").classList.add("hidden");
+  // document.getElementById('showModalBtn').addEventListener('click', function () {
+  // var myModal = new bootstrap.Modal(document.getElementById("myModal"));
+  // myModal.show();
+  // myModal.hide();
+  Swal.fire({
+    icon: "error",
+    title: "Oops...",
+    text: "Los archivos cargados deben tener el mismo nombre",
+    // footer: '<a href="#">Why do I have this issue?</a>'
+  });
+
+  // Swal.fire({
+  //   icon: "error",
+  //   title: "Oops...",
+  //   text: "Los archivos cargados deben tener el mismo nombre",
+  //   confirmButtonText: "Ok",
+  // }).then((result) => {
+  //   if (result.isConfirmed) {
+  //     // location.reload();
+  //   }
+  // });
+}
+function ocultarAlertaUpload() {
+  // document.getElementById("alertNames").classList.add("hidden");
+  // location.reload();
+}

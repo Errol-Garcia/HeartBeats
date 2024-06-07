@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
 
 
@@ -66,6 +67,14 @@ def inicio(nombreArchivo):
     dtsCom=ajusteDatos(dtsCom)
 
 
+
+    # Nombre del archivo CSV
+    nombre_archivo = f'C:/wamp64/www/Detector-de-arritmias/files/datos-{nombreArchivo}.csv'
+
+    # Abrir el archivo en modo de escritura y escribir los datos
+    with open(nombre_archivo, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(dtsCom)
     #Se guarda los datos
     # np.savetxt('././files/datos.dat',dtsCom)
     # np.savetxt('././files/etiquetas.dat',etqCom)
