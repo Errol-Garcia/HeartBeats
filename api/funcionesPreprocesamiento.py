@@ -11,7 +11,7 @@ def llamado(registr):
     # regist=100+registr
     # registro=str(regist)
     # registro = '../../files/100'
-    registro = f'C:/wamp64/www/Detector-de-arritmias/files/{registr}'
+    registro = f'./files/{registr}'
     print(registro)
     size=650000
 
@@ -48,7 +48,7 @@ def detectorQRS(registr):
     # registro=str(regist)
     
     # registro = '../../files/100'
-    registro = f'C:/wamp64/www/Detector-de-arritmias/files/{registr}'
+    registro = f'./files/{registr}'
     record = wfdb.rdrecord(registro, channels=[0], physical=False)
     qrs_locs = processing.gqrs_detect(d_sig=record.d_signal[:,0], fs=record.fs, adc_gain=record.adc_gain[0], adc_zero=record.adc_zero[0])
 

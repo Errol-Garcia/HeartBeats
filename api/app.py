@@ -11,7 +11,7 @@ import csv
 app=Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = 'C:/wamp64/www/Detector-de-arritmias/files'
+UPLOAD_FOLDER = './files'
 
 # Configurar la carpeta de subida en la aplicación
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -49,7 +49,7 @@ def fit():
     register_name = file_names[1].split('.')[0]
     print("NOMBRE DEL ARCHIVO",register_name)
     dts, etq =preprocesamiento.inicio( file_names[1].split('.')[0])
-    X_new = np.loadtxt(f"C:/wamp64/www/Detector-de-arritmias/files/datos-{register_name}.dat")
+    X_new = np.loadtxt(f"./files/datos-{register_name}.dat")
 
     # Verificar el tamaño del array
     print("Tamaño original de X_new:", X_new.size)
@@ -64,14 +64,14 @@ def fit():
         # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
         exit(1)
 
-    path="C:/wamp64/www/Detector-de-arritmias/api/modelo_CNN1D.h5"
+    path="./modelo_CNN1D.h5"
     model= tf.keras.models.load_model(path)
     
     predictions = model.predict(X_new)
     
     predicted_classes = np.argmax(predictions, axis=1)
     
-    np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{register_name}.dat',predicted_classes)
+    np.savetxt(f'./files/etiquetas-{register_name}.dat',predicted_classes)
 
 # Mostrar las predicciones
     print("Tamaño:", predicted_classes.size)
@@ -82,7 +82,7 @@ def fit():
 
     print("hay: ", cont )
 
-    nombre_archivo = f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{register_name}.csv'
+    nombre_archivo = f'./files/etiquetas-{register_name}.csv'
 
     predicted_classes = [predicted_classes]
     # Abrir el archivo en modo de escritura y escribir los datos
