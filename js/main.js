@@ -281,7 +281,7 @@ async function fetchECGData(filename) {
 
 function plotECG(data) {
   const trace = {
-    y: i_data.slice(0, 1000),
+    y: data.slice(0, 1000),
     type: "scatter",
     mode: "lines",
     line: {
@@ -331,8 +331,8 @@ function plotECG(data) {
   let currentIndex = 1000;
 
   setInterval(() => {
-    if (currentIndex < i_data.length) {
-      const newData = i_data.slice(currentIndex, currentIndex + 1); // Tomar un solo punto de datos
+    if (currentIndex < data.length) {
+      const newData = data.slice(currentIndex, currentIndex + 1); // Tomar un solo punto de datos
       const update = {
         y: [[newData[0]]],
       };
