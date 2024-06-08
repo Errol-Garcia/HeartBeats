@@ -7,6 +7,7 @@ import preprocesamiento
 import os
 import tensorflow as tf
 import csv
+import wfdb
 
 app=Flask(__name__)
 CORS(app)
@@ -23,8 +24,8 @@ def index():
     filename3 = upload_data(request.files['file3'])
     # preprocesamiento.inicio()
 
-    return jsonify({"message": "Archivos recibidos", "fileName1": filename, "fileName2": filename2, "fileName3": filename3})
-    # return f'The files {filename} uploaded successfully', 200
+    return jsonify({"filename": filename})
+# return f'The files {filename} uploaded successfully', 200
 
 
 def upload_data(file):
@@ -38,8 +39,16 @@ def upload_data(file):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     print("ruta: ", file_path)
     file.save(file_path)
-    return file.filename
+
+    return file.filename.split('.')[0]
     
+@app.route('/ecg/<filename>', methods=['GET'])
+def get_ecg(filename):
+    record = wfdb.rdrecord(f'./files/{filename}')
+    
+    ecg_data = record.p_signal[:, 0].tolist()
+    
+    return jsonify(ecg_data)
 
 @app.route('/predict', methods=['POST'])
 def fit():

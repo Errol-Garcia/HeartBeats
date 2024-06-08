@@ -51,49 +51,53 @@
         <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
           <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
             <div class="card-body">
-              <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
-
-              <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
-                <!-- Registro (.atr) -->
-                <div class="col-lg-12 mb-2">
-                  <label for="fileInput" class="col-form-label">Registro (.atr)</label>
-                  <div class="custom-file">
-                    <input type="file" class="form-control custom-file-input" name="fileInput" id="fileInput"
-                      placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="fileInput">Seleccionar</label>
+              <div class="upload-area">
+                <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
+                  <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
+                  <!-- Registro (.atr) -->
+                  <div class="col-lg-12 mb-2">
+                    <label for="fileInput" class="col-form-label">Registro (.atr)</label>
+                    <div class="custom-file">
+                      <input type="file" class="form-control custom-file-input" name="fileInput1" id="fileInput1"
+                        placeholder="Selecciona un archivo" required>
+                      <label class="custom-file-label" for="fileInput">Seleccionar</label>
+                    </div>
                   </div>
-                </div>
 
-                <!-- Registro (.hea) -->
-                <div class="col-lg-12 mb-2">
-                  <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
-                  <div class="custom-file">
-                    <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
-                      placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                  <!-- Registro (.hea) -->
+                  <div class="col-lg-12 mb-2">
+                    <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
+                    <div class="custom-file">
+                      <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
+                        placeholder="Selecciona un archivo" required>
+                      <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                    </div>
                   </div>
-                </div>
 
-                <!-- Registro (.dat) -->
-                <div class="col-lg-12 mb-2">
-                  <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
-                  <div class="custom-file">
-                    <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
-                      placeholder="Selecciona un archivo" required>
-                    <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                  <!-- Registro (.dat) -->
+                  <div class="col-lg-12 mb-2">
+                    <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
+                    <div class="custom-file">
+                      <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
+                        placeholder="Selecciona un archivo" required>
+                      <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                    </div>
                   </div>
+
+                  <div class="col-lg-12 text-end g-2">
+                    <button type="submit" id="btn_submit" class="btn btn-dark"><i
+                            class="fa-solid fa-upload"></i>
+                        Cargar</button>
+
+                    <div id="btn_clean" class="btn btn-danger d-none"><i
+                            class="fa-solid fa-eraser"></i>
+                        Limpiar</div>
                 </div>
-
-                <div class="col-lg-12 text-end g-2">
-                  <button type="submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-upload"></i>
-                    Cargar</button>
-
-                  <button type="button" id="btn_clean" class="btn btn-danger w-25"><i class="fa-solid fa-eraser"></i>
-                    Limpiar</button>
-                </div>
-              </form>
-
-              <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+                </form>
+              </div>
+              <div class="predict-area">
+              </div>
+              <!-- <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
 
               <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
                 <div class="col-lg-12 text-center mb-2">
@@ -109,7 +113,7 @@
                   <button type=" submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-brain"></i>
                     Predecir</button>
                 </div>
-              </form>
+              </form> -->
             </div>
           </div>
         </div>
@@ -142,13 +146,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <script src="js/spinner.js"></script>
 
   <script src="js/bs-custom-file-input.js"></script>
 
   <script src="js/main.js"></script>
+
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </body>
 
 </html>
