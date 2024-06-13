@@ -1,7 +1,6 @@
 from flask import Flask,request, jsonify
 import numpy as np
 import pandas as pd
-import joblib
 from flask_cors import CORS
 import preprocesamiento
 import os
@@ -44,9 +43,11 @@ def upload_data(file):
     
 @app.route('/ecg/<filename>', methods=['GET'])
 def get_ecg(filename):
-    record = wfdb.rdrecord(f'./files/{filename}')
+    data = wfdb.rdrecord(f'./files/{filename}')
+    # data = np.loadtxt("./files/datos-100.dat")
     
-    ecg_data = record.p_signal[:, 0].tolist()
+    ecg_data = data.p_signal[:, 0].tolist()
+    # ecg_data = data[:,1].tolist()
     
     return jsonify(ecg_data)
 

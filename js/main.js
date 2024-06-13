@@ -1,11 +1,5 @@
-// document.addEventListener(DOMContentLoaded, function(){
-
-// });
-
 $(document).ready(function () {
   var response1 = "";
-  var response2 = "";
-  var response3 = "";
 
   $.validator.addMethod(
     "extensionFile1",
@@ -144,7 +138,9 @@ $(document).ready(function () {
           response1 = response;
           enableBtnSubmit();
 
-          fetchECGData(response.filename).then((data) => plotECG(data));
+          fetchECGData(response.filename)
+            //.then((response) => response.json())
+            .then((data) => plotECG(data));
 
           let predictHTML = `
                       <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
@@ -279,6 +275,74 @@ async function fetchECGData(filename) {
   return data;
 }
 
+// function plotECG(data) {
+//   const trace = {
+//     y: data.slice(0, 1000),
+//     type: "scatter",
+//     mode: "lines",
+//     line: {
+//       color: "#000",
+//       width: 1,
+//     },
+//   };
+
+//   const layout = {
+//     xaxis: {
+//       title: "Time (ms)",
+//       titlefont: {
+//         size: 16,
+//         color: "#333",
+//       },
+//       range: [0, 1000],
+//       tickfont: {
+//         size: 14,
+//         color: "#333",
+//       },
+//       fixedrange: true,
+//     },
+//     yaxis: {
+//       title: "Amplitude (mV)",
+//       titlefont: {
+//         size: 16,
+//         color: "#333",
+//       },
+//       tickfont: {
+//         size: 14,
+//         color: "#333",
+//       },
+//       fixedrange: true,
+//     },
+//     plot_bgcolor: "rgba(255, 255, 255, 0.9)",
+//     paper_bgcolor: "#f4f4f4",
+//     dragmode: false,
+//     modeBarButtonsToRemove: ["toImage"],
+//     modeBarButtonsToAdd: [],
+//   };
+//   const config = { responsive: true };
+//   Plotly.newPlot("ecg-plot", [trace], layout, config);
+
+//   // Ajustes para una frecuencia cardíaca realista
+//   const samplingRate = 360; // Suponiendo una frecuencia de muestreo típica de 360 Hz
+//   const interval = 1000 / samplingRate; // Intervalo de actualización en milisegundos para una frecuencia de muestreo de 360 Hz
+//   let currentIndex = 1000;
+
+//   setInterval(() => {
+//     if (currentIndex < data.length) {
+//       const newData = data.slice(currentIndex, currentIndex + 1); // Tomar un solo punto de datos
+//       const update = {
+//         y: [[newData[0]]],
+//       };
+//       Plotly.extendTraces("ecg-plot", update, [0]);
+//       currentIndex += 1;
+
+//       // Desplazar el rango del eje X para simular el movimiento de la señal ECG
+//       Plotly.relayout("ecg-plot", {
+//         "xaxis.range": [currentIndex - 1000, currentIndex],
+//       });
+//     }
+//   }, interval);
+// }
+
 function plotECG(data) {
   const trace = {
     y: data.slice(0, 1000),
@@ -325,21 +389,19 @@ function plotECG(data) {
   const config = { responsive: true };
   Plotly.newPlot("ecg-plot", [trace], layout, config);
 
-  // Ajustes para una frecuencia cardíaca realista
-  const samplingRate = 360; // Suponiendo una frecuencia de muestreo típica de 360 Hz
-  const interval = 1000 / samplingRate; // Intervalo de actualización en milisegundos para una frecuencia de muestreo de 360 Hz
+  const samplingRate = 360;
+  const interval = 1000 / samplingRate;
   let currentIndex = 1000;
 
   setInterval(() => {
     if (currentIndex < data.length) {
-      const newData = data.slice(currentIndex, currentIndex + 1); // Tomar un solo punto de datos
+      const newData = data.slice(currentIndex, currentIndex + 1);
       const update = {
         y: [[newData[0]]],
       };
       Plotly.extendTraces("ecg-plot", update, [0]);
       currentIndex += 1;
 
-      // Desplazar el rango del eje X para simular el movimiento de la señal ECG
       Plotly.relayout("ecg-plot", {
         "xaxis.range": [currentIndex - 1000, currentIndex],
       });
