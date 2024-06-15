@@ -68,6 +68,9 @@ body {
   font-weight: 500;
 }
 
+.hidden{
+  display: none;
+}
 /* #ecg-plot {
   width: 100%;
   height: 300px;

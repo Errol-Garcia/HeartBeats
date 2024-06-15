@@ -127,6 +127,7 @@ $(document).ready(function () {
       //     $(".i_load_data").attr("style", "color: #1cc88a !important;");
       //   },
       // });
+      const formContainer = document.getElementById('formContainer');
       $.ajax({
         url: "http://127.0.0.1:5003",
         type: "POST",
@@ -138,27 +139,29 @@ $(document).ready(function () {
           response1 = response;
           enableBtnSubmit();
 
-          fetchECGData(response.filename)
+          fetchECGData(response['fileName'])
             //.then((response) => response.json())
             .then((data) => plotECG(data));
 
-          let predictHTML = `
-                      <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
-                          <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+          // let predictHTML = `
+          //             <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
+          //                 <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
   
-                          <div class="col-lg-12 text-center mb-2">
-                <div id="ecg-plot"></div>
-                          </div>
+          //                 <div class="col-lg-12 text-center mb-2">
+          //       <div id="ecg-plot"></div>
+          //                 </div>
   
-                          <div class="col-lg-12 text-end">
-                              <button type=" submit" id="btn_submit" class="btn btn-dark"><i
-                                      class="fa-solid fa-brain"></i>
-                                  Predecir</button>
-                          </div>
-                      </form>
-                  `;
+          //                 <div class="col-lg-12 text-end">
+          //                     <button type=" submit" id="btn_submit" class="btn btn-dark"><i
+          //                             class="fa-solid fa-brain"></i>
+          //                         Predecir</button>
+          //                 </div>
+          //             </form>
+          //         `;
 
-          predictArea.html(predictHTML);
+          // predictArea.html(predictHTML);
+        formContainer.classList.remove('hidden');
+
         },
       });
 
@@ -176,20 +179,19 @@ $(document).ready(function () {
 
   //PREDICCIÓN DE LOS
   $("#form_predict_arrhythmia").submit(function (e) {
+    
+    e.preventDefault();
     console.log("pase por aquí 3");
     // e.preventDefault();
 
-    console.log("file name 1: ", response1["fileName1"]);
-    console.log("file name 2: ", response1["fileName2"]);
-    console.log("file name 3: ", response1["fileName3"]);
+    console.log("file name 1: ", response1["fileName"]);
 
     var Data = {
-      fileNames: [
-        response1["fileName1"],
-        response1["fileName2"],
-        response1["fileName3"],
-      ],
+      fileNames: response1["fileName"]
     };
+
+    
+    const Container = document.getElementById('signal-ECG');
 
     $.ajax({
       url: "http://127.0.0.1:5003/predict",
@@ -197,9 +199,108 @@ $(document).ready(function () {
       data: JSON.stringify(Data),
       contentType: "application/json",
       processData: false,
-      success: function (response) {
-        // $("#response_load").html(response);
-        // $(".i_load_data").attr("style", "color: #1cc88a !important;");
+      success: function (data) {
+        var datosall;
+        fetch('./api/datos.json')  // Ruta al archivo JSON
+            .then(response => response.json())
+            .then(data => {
+                datosall=data;
+                const initialData = data;
+
+            const seriesData = [
+                { name: 'No Arritmia', color: 'black', data: [] },
+                { name: 'Con Arritmia', color: 'red', data: [] }
+            ];
+
+            // Crear el gráfico
+            const chart = Highcharts.chart('ecg-plot2', {
+                chart: {
+                    type: 'line',
+                    animation: Highcharts.svg, 
+                },
+                title: {
+                    text: 'Cardiograma Animado'
+                },
+                xAxis: {
+                    title: {
+                        text: 'Tiempo'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Amplitud'
+                    }
+                },
+                series: seriesData
+            });
+
+            
+            let index = 0;
+            const interval = 50; // Intervalo
+            datos=initialData.datos.flat()
+            function addPoint() {
+                
+                if (index < datos.length) {                    
+                    
+                    
+                    if (index < 2000) {
+                        for(i=0;i<80;i++){
+                            const point =  { x: index, y: datos[index]};
+                            chart.series[0].addPoint(point, true, false);
+                            index+=1;
+                        }
+                    } 
+                    else {
+                        pointlast={ x: index-1, y: datos[index-1]}
+                        if(index==2000)chart.series[1].addPoint(pointlast, true, false);
+                        for(i=0;i<80;i++){
+                            const point =  { x: index, y: datos[index]};
+                            chart.series[1].addPoint(point, true, false);
+                            index+=1;
+                        }                        
+                        
+                    } 
+                    
+                    // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
+                    if (index>578){
+                        for(i=0;i<100;i++){
+                            if (chart.series[0].data.length > 0) {
+                                chart.series[0].data[0].remove(false);
+                            }
+                            else{
+                                chart.series[1].data[0].remove(false);
+                            }
+
+                        }
+                        
+                        
+                    }
+                   
+                    chart.redraw();
+                    //index+=1;
+                    
+                } else {
+                    clearInterval(timer);
+                }
+            }
+
+            const timer = setInterval(addPoint, interval);
+            })
+            .catch(error => console.error('Error al cargar los datos:', error));
+          //                 <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+  
+          //                 <div class="col-lg-12 text-center mb-2">
+          //       <div id="ecg-plot"></div>
+          //                 </div>
+  
+          //         `;
+
+          // predictArea.html(predictHTML);
+          
+        // Container.classList.remove('hidden');
+        
+      
+        // Container.classList.remove('hidden');
       },
       error: function (xhr, status, error) {
         console.error("Error en la solicitud: " + status + ", " + error);
@@ -275,73 +376,7 @@ async function fetchECGData(filename) {
   return data;
 }
 
-// function plotECG(data) {
-//   const trace = {
-//     y: data.slice(0, 1000),
-//     type: "scatter",
-//     mode: "lines",
-//     line: {
-//       color: "#000",
-//       width: 1,
-//     },
-//   };
-
-//   const layout = {
-//     xaxis: {
-//       title: "Time (ms)",
-//       titlefont: {
-//         size: 16,
-//         color: "#333",
-//       },
-//       range: [0, 1000],
-//       tickfont: {
-//         size: 14,
-//         color: "#333",
-//       },
-//       fixedrange: true,
-//     },
-//     yaxis: {
-//       title: "Amplitude (mV)",
-//       titlefont: {
-//         size: 16,
-//         color: "#333",
-//       },
-//       tickfont: {
-//         size: 14,
-//         color: "#333",
-//       },
-//       fixedrange: true,
-//     },
-//     plot_bgcolor: "rgba(255, 255, 255, 0.9)",
-//     paper_bgcolor: "#f4f4f4",
-//     dragmode: false,
-//     modeBarButtonsToRemove: ["toImage"],
-//     modeBarButtonsToAdd: [],
-//   };
-//   const config = { responsive: true };
-//   Plotly.newPlot("ecg-plot", [trace], layout, config);
-
-//   // Ajustes para una frecuencia cardíaca realista
-//   const samplingRate = 360; // Suponiendo una frecuencia de muestreo típica de 360 Hz
-//   const interval = 1000 / samplingRate; // Intervalo de actualización en milisegundos para una frecuencia de muestreo de 360 Hz
-//   let currentIndex = 1000;
-
-//   setInterval(() => {
-//     if (currentIndex < data.length) {
-//       const newData = data.slice(currentIndex, currentIndex + 1); // Tomar un solo punto de datos
-//       const update = {
-//         y: [[newData[0]]],
-//       };
-//       Plotly.extendTraces("ecg-plot", update, [0]);
-//       currentIndex += 1;
-
-//       // Desplazar el rango del eje X para simular el movimiento de la señal ECG
-//       Plotly.relayout("ecg-plot", {
-//         "xaxis.range": [currentIndex - 1000, currentIndex],
-//       });
-//     }
-//   }, interval);
-// }
+//IMPRESION FUNCIONAL DE GRAFICA
 
 function plotECG(data) {
   const trace = {
@@ -408,3 +443,89 @@ function plotECG(data) {
     }
   }, interval);
 }
+
+function plotECG2(data) {
+  var datosall;
+  datosall=data;
+  const initialData = data;
+
+  const seriesData = [
+    { name: 'No Arritmia', color: 'black', data: [] },
+    { name: 'Con Arritmia', color: 'red', data: [] }
+  ];
+
+// Crear el gráfico
+  const chart = Highcharts.chart('ecg-plot2', {
+    chart: {
+        type: 'line',
+        animation: Highcharts.svg, 
+    },
+    title: {
+        text: 'Cardiograma Animado'
+    },
+    xAxis: {
+        title: {
+            text: 'Tiempo'
+        }
+    },
+    yAxis: {
+        title: {
+            text: 'Amplitud'
+        }
+    },
+    series: seriesData
+  });
+
+
+  let index = 0;
+  const interval = 50; // Intervalo
+  datos=initialData.datos.flat()
+  function addPoint() {
+  
+  if (index < datos.length) {                    
+      
+      
+      if (index < 2000) {
+          for(i=0;i<15;i++){
+              const point =  { x: index, y: datos[index]};
+              chart.series[0].addPoint(point, true, false);
+              index+=1;
+          }
+      } 
+      else {
+          pointlast={ x: index-1, y: datos[index-1]}
+          if(index==2000)chart.series[1].addPoint(pointlast, true, false);
+          for(i=0;i<15;i++){
+              const point =  { x: index, y: datos[index]};
+              chart.series[1].addPoint(point, true, false);
+              index+=1;
+          }                        
+          
+      } 
+      
+      // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
+      if (index>578){
+          for(i=0;i<100;i++){
+              if (chart.series[0].data.length > 0) {
+                  chart.series[0].data[0].remove(false);
+              }
+              else{
+                  chart.series[1].data[0].remove(false);
+              }
+
+          }
+          
+          
+      }
+      
+      chart.redraw();
+      //index+=1;
+      
+  } else {
+      clearInterval(timer);
+  }
+}
+
+const timer = setInterval(addPoint, interval);
+}
+ 

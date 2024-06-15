@@ -7,6 +7,7 @@ import os
 import tensorflow as tf
 import csv
 import wfdb
+import json
 
 app=Flask(__name__)
 CORS(app)
@@ -21,9 +22,10 @@ def index():
     filename = upload_data(request.files['file'])
     filename2 = upload_data(request.files['file2'])
     filename3 = upload_data(request.files['file3'])
-    # preprocesamiento.inicio()
+    
+    dts, etq =preprocesamiento.inicio(filename)
 
-    return jsonify({"filename": filename})
+    return jsonify({"fileName": filename})
 # return f'The files {filename} uploaded successfully', 200
 
 
@@ -56,19 +58,24 @@ def fit():
     data =  request.get_json()
 
     file_names = data['fileNames']
-    register_name = file_names[1].split('.')[0]
-    print("NOMBRE DEL ARCHIVO",register_name)
-    dts, etq =preprocesamiento.inicio( file_names[1].split('.')[0])
+    # print("name:",file_names[1].split('.')[0])
+    # register_name = file_names[1].split('.')[0]
+    register_name = file_names
+    # print("NOMBRE DEL ARCHIVO",register_name)
     X_new = np.loadtxt(f"./files/datos-{register_name}.dat")
-
+    
+    segment_size = 100  # Tamaño de cada segmento
+    num_segments = len(X_new) // segment_size
+    
     # Verificar el tamaño del array
+    print("Numero de segmentos", num_segments)
     print("Tamaño original de X_new:", X_new.size)
     print("Forma original de X_new:", X_new.shape)
     print("X_new[0]:", X_new.shape[0])
     print("X_new[1]:", X_new.shape[1])
 
     try:
-        X_new = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
+        X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
     except ValueError as e:
         print("Error al reestructurar el array:", e)
         # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
@@ -77,12 +84,19 @@ def fit():
     path="./modelo_CNN1D.h5"
     model= tf.keras.models.load_model(path)
     
-    predictions = model.predict(X_new)
+    predictions = model.predict(X_newShape)
     
     predicted_classes = np.argmax(predictions, axis=1)
     
+    json_data = {
+        "datos": X_new.tolist(),
+        "etiquetas": np.array(predicted_classes)
+    }
     np.savetxt(f'./files/etiquetas-{register_name}.dat',predicted_classes)
 
+
+    
+    
 # Mostrar las predicciones
     print("Tamaño:", predicted_classes.size)
     cont = 0
@@ -100,9 +114,18 @@ def fit():
         writer = csv.writer(file)
         writer.writerows(predicted_classes)
     
-
+    etiquetas = np.loadtxt(f'./files/etiquetas-{register_name}.dat').tolist()
+    json_data = {
+        "datos": X_new.tolist(),
+        "etiquetas": etiquetas
+    }
+    
+    # Guardar el JSON en un archivo
+    with open('datos.json', 'w') as f:
+        json.dump(json_data, f)
+        
     # return jsonify({"response": "la respuesta es:"})
-    return jsonify({"message": "Archivos recibidos", "files": file_names})
+    return jsonify({"message": "Archivos recibidos", "data": json_data})
 
 
 if __name__ == '__main__':

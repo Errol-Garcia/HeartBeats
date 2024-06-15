@@ -80,40 +80,39 @@
                     <div class="custom-file">
                       <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
                         placeholder="Selecciona un archivo" required>
-                      <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                      <label class="custom-file-label" for="fileInput3">Seleccionar</label>
                     </div>
                   </div>
 
                   <div class="col-lg-12 text-end g-2">
-                    <button type="submit" id="btn_submit" class="btn btn-dark"><i
-                            class="fa-solid fa-upload"></i>
-                        Cargar</button>
+                    <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
+                      Cargar</button>
 
-                    <div id="btn_clean" class="btn btn-danger d-none"><i
-                            class="fa-solid fa-eraser"></i>
-                        Limpiar</div>
-                </div>
+                    <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
+                      Limpiar</div>
+                  </div>
                 </form>
               </div>
-              <div class="predict-area">
+              <div class="predict-area hidden" id="formContainer">
+                <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
+                  <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+
+                  <div class="col-lg-12 text-center mb-2">
+                    <div id="ecg-plot"></div>
+                  </div>
+
+                  <div class="col-lg-12 text-end">
+                    <button type=" submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-brain"></i>
+                      Predecir</button>
+                  </div>
+                </form>
               </div>
-              <!-- <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-
-              <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
+              <div class="signal-ECG" id="Container">
+                <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
                 <div class="col-lg-12 text-center mb-2">
-                  <picture>
-                    <img class="rounded mx-auto d-block img-fluid img-thumbnail" src="image/Señal ECG.webp"
-                      alt="El electrocardiograma muestra una línea normal de latido cardíaco (ritmo sinusal). ECG. EKG. Signo vital. Símbolo de atención médica. Vector de stock"
-                      title="El electrocardiograma muestra una línea normal de latido cardíaco (ritmo sinusal). ECG. EKG. Signo vital. Símbolo de atención médica."
-                      width="100%" height="360" loading="lazy">
-                  </picture>
+                  <div id="ecg-plot2"></div>
                 </div>
-
-                <div class="col-lg-12 text-end">
-                  <button type=" submit" id="btn_submit" class="btn btn-dark w-25"><i class="fa-solid fa-brain"></i>
-                    Predecir</button>
-                </div>
-              </form> -->
+              </div>
             </div>
           </div>
         </div>
@@ -152,7 +151,8 @@
 
   <script src="js/main.js"></script>
 
-	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
 </body>
 
 </html>
