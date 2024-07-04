@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/styleMenu.css">
+
 </head>
 
 <body>
@@ -24,109 +26,158 @@
     </div>
   </div>
 
-  <header>
-    <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-house"></i> Inicio</a>
-            </li>
-          </ul>
-        </div>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="bg-dark">
+      <div class="sidebar-header">
+        <h3>Menú</h3>
       </div>
+
+      <ul class="list-unstyled components">
+        <li class="active">
+          <a href="pages/normalizacion.html">
+            <i class="fas fa-home"></i>
+            Normalizar
+          </a>
+        </li>
+        <li>
+          <a href="pages/pqrs.html">
+            <i class="fa-regular fa-heart"></i>
+            PQRS
+          </a>
+        </li>
+        <li>
+          <a href="pages/segmentacion.html">
+            <i class="fa-solid fa-file-waveform"></i>
+            Segmentación
+          </a>
+        </li>
+        <li>
+          <a href="pages/predecir.html">
+            <i class="fas fa-solid fa-brain"></i>
+            Predecir
+          </a>
+        </li>
+        <li>
+          <a href="pages/viewECG.html">
+            <i class="fa-solid fa-wave-square"></i>
+            ver
+          </a>
+        </li>
+      </ul>
     </nav>
-  </header>
 
-  <main>
-    <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
-      <div class="row d-flex flex-column justify-content-center align-items-center w-100">
-        <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
-          <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
-            <div class="card-body">
-              <div class="upload-area">
-                <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
-                  <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
-                  <!-- Registro (.atr) -->
-                  <div class="col-lg-12 mb-2">
-                    <label for="fileInput" class="col-form-label">Registro (.atr)</label>
-                    <div class="custom-file">
-                      <input type="file" class="form-control custom-file-input" name="fileInput1" id="fileInput1"
-                        placeholder="Selecciona un archivo" required>
-                      <label class="custom-file-label" for="fileInput">Seleccionar</label>
+    <!-- Page Content -->
+    <div id="content">
+      <header>
+        <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
+          <div class="container-fluid">
+            <button type="button" id="sidebarCollapse" class="btn btn-info">
+              <i class="fas fa-align-left"></i>
+              <span>Menu</span>
+            </button>
+            <a class="navbar-brand" style="margin-left: 10px;"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-house"></i> Inicio</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
+          <div class="row d-flex flex-column justify-content-center align-items-center w-100">
+            <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
+              <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
+                <div class="card-body">
+                  <div class="upload-area" id="upload-area">
+                    <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
+                      <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
+                      <!-- Registro (.atr) -->
+                      <div class="col-lg-12 mb-2">
+                        <label for="fileInput" class="col-form-label">Registro (.atr)</label>
+                        <div class="custom-file">
+                          <input type="file" class="form-control custom-file-input" name="fileInput1" id="fileInput1"
+                            placeholder="Selecciona un archivo" required>
+                          <label class="custom-file-label" for="fileInput">Seleccionar</label>
+                        </div>
+                      </div>
+
+                      <!-- Registro (.hea) -->
+                      <div class="col-lg-12 mb-2">
+                        <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
+                        <div class="custom-file">
+                          <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
+                            placeholder="Selecciona un archivo" required>
+                          <label class="custom-file-label" for="fileInput2">Seleccionar</label>
+                        </div>
+                      </div>
+
+                      <!-- Registro (.dat) -->
+                      <div class="col-lg-12 mb-2">
+                        <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
+                        <div class="custom-file">
+                          <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
+                            placeholder="Selecciona un archivo" required>
+                          <label class="custom-file-label" for="fileInput3">Seleccionar</label>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-12 text-end g-2">
+                        <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
+                          Cargar</button>
+
+                        <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
+                          Limpiar</div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="predict-area hidden" id="formContainer">
+                    <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
+                      <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+
+                      <div class="col-lg-12 text-center mb-2">
+                        <div id="ecg-plot"></div>
+                      </div>
+
+                      <div class="col-lg-12 text-end">
+                        <button type=" submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-brain"></i>
+                          Predecir</button>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="signal-ECG hidden" id="Container">
+                    <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+                    <div class="col-lg-12 text-center mb-2">
+                      <div id="ecg-plot2"></div>
                     </div>
                   </div>
-
-                  <!-- Registro (.hea) -->
-                  <div class="col-lg-12 mb-2">
-                    <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
-                    <div class="custom-file">
-                      <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
-                        placeholder="Selecciona un archivo" required>
-                      <label class="custom-file-label" for="fileInput2">Seleccionar</label>
-                    </div>
-                  </div>
-
-                  <!-- Registro (.dat) -->
-                  <div class="col-lg-12 mb-2">
-                    <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
-                    <div class="custom-file">
-                      <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
-                        placeholder="Selecciona un archivo" required>
-                      <label class="custom-file-label" for="fileInput3">Seleccionar</label>
-                    </div>
-                  </div>
-
-                  <div class="col-lg-12 text-end g-2">
-                    <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
-                      Cargar</button>
-
-                    <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
-                      Limpiar</div>
-                  </div>
-                </form>
-              </div>
-              <div class="predict-area hidden" id="formContainer">
-                <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
-                  <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-
-                  <div class="col-lg-12 text-center mb-2">
-                    <div id="ecg-plot"></div>
-                  </div>
-
-                  <div class="col-lg-12 text-end">
-                    <button type=" submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-brain"></i>
-                      Predecir</button>
-                  </div>
-                </form>
-              </div>
-              <div class="signal-ECG" id="Container">
-                <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-                <div class="col-lg-12 text-center mb-2">
-                  <div id="ecg-plot2"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </main>
+      </main>
 
-  <footer class="sticky-footer bg-white">
-    <div class="container my-auto">
-      <div class="copyright text-center my-auto">
-        <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
-      </div>
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
+          </div>
+        </div>
+      </footer>
     </div>
-  </footer>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -153,6 +204,14 @@
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+      });
+    });
+  </script>
 </body>
 
 </html>

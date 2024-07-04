@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Predicción de arritmias cardíacas</title>
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css"> -->
+    <link rel="stylesheet" href="css/adminlte.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Cargando...</span>
+        </div>
+    </div>
+
+    <header>
+        <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart
+                    AI</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-house"></i>
+                                Inicio</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
+            <div class="row d-flex flex-column justify-content-center align-items-center w-100">
+                <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
+                    <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
+                        <div class="card-body">
+                            <div class="upload-area">
+                                <div id="ecg-plot2"></div>
+
+                                <script>
+                                    // Cargar los datos del archivo JSON
+                                    var datosall;
+                                    fetch('./api/datos.json')  // Ruta al archivo JSON
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            datosall = data;
+                                            const initialData = data;
+
+                                            const seriesData = [
+                                                { name: 'No Arritmia', color: 'black', data: [] },
+                                                { name: 'Con Arritmia', color: 'red', data: [] }
+                                            ];
+
+                                            // Crear el gráfico
+                                            const chart = Highcharts.chart('ecg-plot2', {
+                                                chart: {
+                                                    type: 'line',
+                                                    animation: Highcharts.svg,
+                                                },
+                                                title: {
+                                                    text: 'Cardiograma Animado'
+                                                },
+                                                xAxis: {
+                                                    title: {
+                                                        text: 'Tiempo'
+                                                    }
+                                                },
+                                                yAxis: {
+                                                    title: {
+                                                        text: 'Amplitud'
+                                                    }
+                                                },
+                                                series: seriesData
+                                            });
+
+
+                                            let index = 0;
+                                            const interval = 50; // Intervalo
+                                            datos = initialData.datos.flat()
+                                            function addPoint() {
+
+                                                if (index < datos.length) {
+
+
+                                                    if (index < 2000) {
+                                                        for (i = 0; i < 80; i++) {
+                                                            const point = { x: index, y: datos[index] };
+                                                            chart.series[0].addPoint(point, true, false);
+                                                            index += 1;
+                                                        }
+                                                    }
+                                                    else {
+                                                        pointlast = { x: index - 1, y: datos[index - 1] }
+                                                        if (index == 2000) chart.series[1].addPoint(pointlast, true, false);
+                                                        for (i = 0; i < 80; i++) {
+                                                            const point = { x: index, y: datos[index] };
+                                                            chart.series[1].addPoint(point, true, false);
+                                                            index += 1;
+                                                        }
+
+                                                    }
+
+                                                    // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
+                                                    if (index > 578) {
+                                                        for (i = 0; i < 100; i++) {
+                                                            if (chart.series[0].data.length > 0) {
+                                                                chart.series[0].data[0].remove(false);
+                                                            }
+                                                            else {
+                                                                chart.series[1].data[0].remove(false);
+                                                            }
+
+                                                        }
+
+
+                                                    }
+
+                                                    chart.redraw();
+                                                    //index+=1;
+
+                                                } else {
+                                                    clearInterval(timer);
+                                                }
+                                            }
+
+                                            const timer = setInterval(addPoint, interval);
+                                        })
+                                        .catch(error => console.error('Error al cargar los datos:', error));
+                                </script>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        </div>
+    </main>
+
+    <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+        </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
+
+    <script src="js/spinner.js"></script>
+
+    <script src="js/bs-custom-file-input.js"></script>
+
+    <script src="js/main.js"></script>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</body>
+
+</html>

@@ -8,6 +8,8 @@ import tensorflow as tf
 import csv
 import wfdb
 import json
+from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
+
 
 app=Flask(__name__)
 CORS(app)
@@ -127,6 +129,20 @@ def fit():
     # return jsonify({"response": "la respuesta es:"})
     return jsonify({"message": "Archivos recibidos", "data": json_data})
 
+
+@app.route('/normalizacion',methods=['POST'])
+def normalizar():
+    filename = upload_data(request.files['file'])
+    filename2 = upload_data(request.files['file2'])
+    filename3 = upload_data(request.files['file3'])
+    
+    raw_data, id_events=llamado(filename)
+    data_normal=normalizacion(raw_data)
+    
+    np.savetxt(f'./files/Normalizacion-{filename}.dat',data_normal)
+    name = f'Normalizacion-{filename}.dat'
+    
+    return jsonify({"fileName": name}) 
 
 if __name__ == '__main__':
     app.run(debug=True, port=5003)

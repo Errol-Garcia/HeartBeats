@@ -1,4 +1,9 @@
 $(document).ready(function () {
+
+  $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+  });
+  
   var response1 = "";
 
   $.validator.addMethod(
@@ -41,7 +46,6 @@ $(document).ready(function () {
     "la extension no es la adecuada"
   );
 
-  console.log("pase por aquí 1");
   $("#form_upload_arrhythmia").validate({
     rules: {
       fileInput: {
@@ -128,6 +132,7 @@ $(document).ready(function () {
       //   },
       // });
       const formContainer = document.getElementById('formContainer');
+      const Container = document.getElementById('upload-area');
       $.ajax({
         url: "http://127.0.0.1:5003",
         type: "POST",
@@ -138,7 +143,8 @@ $(document).ready(function () {
           console.log(response.filename);
           response1 = response;
           enableBtnSubmit();
-
+          // Container.classList.addClass('hidden');
+          $("#upload-area").empty();
           fetchECGData(response['fileName'])
             //.then((response) => response.json())
             .then((data) => plotECG(data));
@@ -191,7 +197,7 @@ $(document).ready(function () {
     };
 
     
-    const Container = document.getElementById('signal-ECG');
+    const ContainerSignal = document.getElementById('signal-ECG');
 
     $.ajax({
       url: "http://127.0.0.1:5003/predict",
@@ -200,93 +206,8 @@ $(document).ready(function () {
       contentType: "application/json",
       processData: false,
       success: function (data) {
-        var datosall;
-        fetch('./api/datos.json')  // Ruta al archivo JSON
-            .then(response => response.json())
-            .then(data => {
-                datosall=data;
-                const initialData = data;
-
-            const seriesData = [
-                { name: 'No Arritmia', color: 'black', data: [] },
-                { name: 'Con Arritmia', color: 'red', data: [] }
-            ];
-
-            // Crear el gráfico
-            const chart = Highcharts.chart('ecg-plot2', {
-                chart: {
-                    type: 'line',
-                    animation: Highcharts.svg, 
-                },
-                title: {
-                    text: 'Cardiograma Animado'
-                },
-                xAxis: {
-                    title: {
-                        text: 'Tiempo'
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: 'Amplitud'
-                    }
-                },
-                series: seriesData
-            });
-
-            
-            let index = 0;
-            const interval = 50; // Intervalo
-            datos=initialData.datos.flat()
-            function addPoint() {
-                
-                if (index < datos.length) {                    
-                    
-                    
-                    if (index < 2000) {
-                        for(i=0;i<80;i++){
-                            const point =  { x: index, y: datos[index]};
-                            chart.series[0].addPoint(point, true, false);
-                            index+=1;
-                        }
-                    } 
-                    else {
-                        pointlast={ x: index-1, y: datos[index-1]}
-                        if(index==2000)chart.series[1].addPoint(pointlast, true, false);
-                        for(i=0;i<80;i++){
-                            const point =  { x: index, y: datos[index]};
-                            chart.series[1].addPoint(point, true, false);
-                            index+=1;
-                        }                        
-                        
-                    } 
-                    
-                    // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
-                    if (index>578){
-                        for(i=0;i<100;i++){
-                            if (chart.series[0].data.length > 0) {
-                                chart.series[0].data[0].remove(false);
-                            }
-                            else{
-                                chart.series[1].data[0].remove(false);
-                            }
-
-                        }
-                        
-                        
-                    }
-                   
-                    chart.redraw();
-                    //index+=1;
-                    
-                } else {
-                    clearInterval(timer);
-                }
-            }
-
-            const timer = setInterval(addPoint, interval);
-            })
-            .catch(error => console.error('Error al cargar los datos:', error));
+        
+        plotECG3();
           //                 <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
   
           //                 <div class="col-lg-12 text-center mb-2">
@@ -297,7 +218,8 @@ $(document).ready(function () {
 
           // predictArea.html(predictHTML);
           
-        // Container.classList.remove('hidden');
+          ContainerSignal.classList.remove('hidden');
+          // $("#upload-area").empty();
         
       
         // Container.classList.remove('hidden');
@@ -529,3 +451,99 @@ function plotECG2(data) {
 const timer = setInterval(addPoint, interval);
 }
  
+
+function plotECG3(){
+  var datosall;
+  fetch('./api/datos.json')  // Ruta al archivo JSON
+      .then(response => response.json())
+      .then(data => {
+          datosall=data;
+          const initialData = data;
+
+      const seriesData = [
+          { name: 'No Arritmia', color: 'black', data: [] },
+          { name: 'Con Arritmia', color: 'red', data: [] }
+      ];
+
+      // Crear el gráfico
+      const chart = Highcharts.chart('ecg-plot2', {
+          chart: {
+              type: 'line',
+              animation: Highcharts.svg, 
+          },
+          title: {
+              text: 'Cardiograma Animado'
+          },
+          xAxis: {
+              title: {
+                  text: 'Tiempo'
+              }
+          },
+          yAxis: {
+              title: {
+                  text: 'Amplitud'
+              }
+          },
+          series: seriesData
+      });
+
+      
+      let index = 0;
+      const interval = 50; // Intervalo
+      datos=initialData.datos.flat()
+      function addPoint() {
+          
+          if (index < datos.length) {                    
+              
+              
+              if (index < 2000) {
+                  for(i=0;i<80;i++){
+                      const point =  { x: index, y: datos[index]};
+                      chart.series[0].addPoint(point, true, false);
+                      index+=1;
+                  }
+              } 
+              else {
+                  pointlast={ x: index-1, y: datos[index-1]}
+                  if(index==2000)chart.series[1].addPoint(pointlast, true, false);
+                  for(i=0;i<80;i++){
+                      const point =  { x: index, y: datos[index]};
+                      chart.series[1].addPoint(point, true, false);
+                      index+=1;
+                  }                        
+                  
+              } 
+              
+              // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
+              if (index>578){
+                  for(i=0;i<100;i++){
+                      if (chart.series[0].data.length > 0) {
+                          chart.series[0].data[0].remove(false);
+                      }
+                      else{
+                          chart.series[1].data[0].remove(false);
+                      }
+
+                  }
+                  
+                  
+              }
+              
+              chart.redraw();
+              //index+=1;
+              
+          } else {
+              clearInterval(timer);
+          }
+      }
+
+      const timer = setInterval(addPoint, interval);
+      })
+      .catch(error => console.error('Error al cargar los datos:', error));  
+}
+
+$(document).ready(function () {
+  $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+  });
+});

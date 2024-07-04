@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predicción de arritmias cardíacas</title>
+
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css"> -->
+  <link rel="stylesheet" href="../css/adminlte.min.css">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/styleMenu.css">
+
+</head>
+
+<body>
+  <div id="loader">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+  </div>
+
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="bg-dark">
+      <div class="sidebar-header">
+        <h3>Menú</h3>
+      </div>
+
+      <ul class="list-unstyled components">
+        <li class="active">
+          <a href="#">
+            <i class="fas fa-home"></i>
+            Normalizar
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fa-regular fa-heart"></i>
+            PQRS
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fa-solid fa-file-waveform"></i>
+            Segmentación
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-solid fa-brain"></i>
+            Predecir
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fa-solid fa-wave-square"></i>
+            ver
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+      <header>
+        <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
+          <div class="container-fluid">
+            <button type="button" id="sidebarCollapse" class="btn btn-info">
+              <i class="fas fa-align-left"></i>
+              <span>Menu</span>
+            </button>
+            <a class="navbar-brand" style="margin-left: 10px;"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-house"></i> Inicio</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
+          <div class="row d-flex flex-column justify-content-center align-items-center w-100">
+            <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
+              <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
+                <div class="card-body">
+                  <div class="upload-area" id="upload-area">
+                    <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
+                      <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
+
+                      <!-- Registro (.dat) -->
+                      <div class="col-lg-12 mb-2">
+                        <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
+                        <div class="custom-file">
+                          <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
+                            placeholder="Selecciona un archivo" required>
+                          <label class="custom-file-label" for="fileInput3">Seleccionar</label>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-12 text-end g-2">
+                        <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
+                          Cargar</button>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="predict-area hidden" id="formContainer">
+                      <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+                        <br>
+                        <br>
+                      <div class="col-lg-12 text-center mb-2">
+                        <div id="ecg-plot"></div>
+                      </div>
+
+                      <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
+                        Limpiar</div>
+                  </div>
+                  <div class="signal-ECG hidden" id="Container">
+                    <div class="col-lg-12 text-center mb-2">
+                      <div id="ecg-plot2"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
+
+  <script src="../js/spinner.js"></script>
+
+  <script src="../js/bs-custom-file-input.js"></script>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/viewECG.js"></script>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+      });
+    });
+  </script>
+</body>
+
+</html>
