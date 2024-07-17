@@ -8,6 +8,7 @@ import tensorflow as tf
 import csv
 import wfdb
 import json
+import io
 from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
 
 
@@ -21,10 +22,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/',methods=['POST'])
 def index():
-    filename = upload_data(request.files['file'])
-    filename2 = upload_data(request.files['file2'])
-    filename3 = upload_data(request.files['file3'])
-    
+    # filename = upload_data(request.files['file'])
+    # filename2 = upload_data(request.files['file2'])
+    # filename3 = upload_data(request.files['file3'])
+    filename = "100"
     dts, etq =preprocesamiento.inicio(filename)
 
     return jsonify({"fileName": filename})
@@ -142,7 +143,73 @@ def normalizar():
     np.savetxt(f'./files/Normalizacion-{filename}.dat',data_normal)
     name = f'Normalizacion-{filename}.dat'
     
+    
     return jsonify({"fileName": name}) 
+
+
+@app.route('/pqrs',methods=['POST'])
+def pqrs():
+    
+    filename = upload_data(request.files['file'])
+    filename2 = upload_data(request.files['file2'])
+    filename3 = upload_data(request.files['file3'])
+    
+    pqrs = detectorQRS(filename)
+    
+    np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
+    name = f'PQRS-{filename}.dat'
+    
+    return jsonify({"fileName": name})  
+
+@app.route('/segmentacion',methods=['POST'])
+def segmentacion():
+    # TODO no funciona adecuadamente este metodo
+    file1 = request.files['file']
+    file2 = request.files['file2']
+    
+    file_bytes1 = file1.read()
+    file_bytes2 = file2.read()
+    
+    file_stream1 = io.BytesIO(file_bytes1)
+    # file_stream2 = io.BytesIO(file_bytes2)
+    np_array1 = np.frombuffer(file_stream1.read(), dtype=np.uint32)
+    # np_array1 = np.loadtxt(file_bytes1)
+    # np_array2 = np.loadtxt(file2)
+    # np_array1 = np.loadtxt(file1, dtype=float)
+    np_array2 = np.loadtxt(file2, dtype=float)
+    
+    p=segmentacion(np_array1, np_array2 )
+    
+    # np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
+    # name = f'PQRS-{filename}.dat'
+    
+    return jsonify({"fileName": "name"})  
+
+
+@app.route('/predict-only',methods=['POST'])
+def segmentacion():
+    # TODO
+    file1 = request.files['file']
+    file2 = request.files['file2']
+    
+    file_bytes1 = file1.read()
+    file_bytes2 = file2.read()
+    
+    file_stream1 = io.BytesIO(file_bytes1)
+    # file_stream2 = io.BytesIO(file_bytes2)
+    np_array1 = np.frombuffer(file_stream1.read(), dtype=np.uint32)
+    # np_array1 = np.loadtxt(file_bytes1)
+    # np_array2 = np.loadtxt(file2)
+    # np_array1 = np.loadtxt(file1, dtype=float)
+    np_array2 = np.loadtxt(file2, dtype=float)
+    
+    p=segmentacion(np_array1, np_array2 )
+    
+    # np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
+    # name = f'PQRS-{filename}.dat'
+    
+    return jsonify({"fileName": "name"})  
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5003)
