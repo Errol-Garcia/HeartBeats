@@ -11,8 +11,8 @@ def llamado(registr):
     # regist=100+registr
     # registro=str(regist)
     # registro = '../../files/100'
-    # registro = f'./files/{registr}'
-    registro = f'C:/wamp64/www/Detector-de-arritmias/api/files/{registr}'
+    registro = f'./files/{registr}'
+    # registro = f'C:/wamp64/www/Detector-de-arritmias/api/files/{registr}'
     print(registro)
     size=650000
 

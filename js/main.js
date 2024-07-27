@@ -187,7 +187,6 @@ $(document).ready(function () {
   $("#form_predict_arrhythmia").submit(function (e) {
     
     e.preventDefault();
-    console.log("pase por aquí 3");
     // e.preventDefault();
 
     console.log("file name 1: ", response1["fileName"]);
@@ -208,21 +207,7 @@ $(document).ready(function () {
       success: function (data) {
         
         plotECG3();
-          //                 <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-  
-          //                 <div class="col-lg-12 text-center mb-2">
-          //       <div id="ecg-plot"></div>
-          //                 </div>
-  
-          //         `;
-
-          // predictArea.html(predictHTML);
-          
           ContainerSignal.classList.remove('hidden');
-          // $("#upload-area").empty();
-        
-      
-        // Container.classList.remove('hidden');
       },
       error: function (xhr, status, error) {
         console.error("Error en la solicitud: " + status + ", " + error);

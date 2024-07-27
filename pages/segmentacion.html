@@ -34,12 +34,10 @@
       </div>
 
       <ul class="list-unstyled components">
-        <li class="active">
           <a href="./normalizacion.html">
             <i class="fas fa-home"></i>
             Normalizar
           </a>
-        </li>
         <li>
           <a href="./pqrs.html">
             <i class="fa-regular fa-heart"></i>
@@ -47,10 +45,12 @@
           </a>
         </li>
         <li>
-          <a href="./segmentacion.html">
-            <i class="fa-solid fa-file-waveform"></i>
-            Segmentación
-          </a>
+          <li class="active">
+            <a href="./segmentacion.html">
+              <i class="fa-solid fa-file-waveform"></i>
+              Segmentación
+            </a>
+          </li>
         </li>
         <li>
           <a href="./predecir.html">
@@ -107,9 +107,18 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput" class="col-form-label">Registro Normalizado (.dat)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInputNormalizado" id="fileInputNormalizado"
+                          <input type="file" class="form-control" name="fileInputNormalizado" id="fileInputNormalizado"
                             placeholder="Selecciona un archivo" required>
-                          <label class="custom-file-label" for="fileInputNormalizado">Seleccionar</label>
+                          <!-- <label class="custom-file-label" for="fileInputNormalizado">Seleccionar</label> -->
+                        </div>
+                      </div>
+                      <!-- Registro (.dat) -->
+                      <div class="col-lg-12 mb-2">
+                        <label for="fileInput" class="col-form-label">Registro de eventos normalizados (.dat)</label>
+                        <div class="custom-file">
+                          <input type="file" class="form-control" name="fileInputEvents" id="fileInputEvents"
+                            placeholder="Selecciona un archivo" required>
+                          <!-- <label class="custom-file-label" for="fileInputEvents">Seleccionar</label> -->
                         </div>
                       </div>
 
@@ -117,9 +126,9 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInputPQRS" class="col-form-label">Registro PQRS (.dat)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInputPQRS" id="fileInputPQRS"
+                          <input type="file" class="form-control" name="fileInputPQRS" id="fileInputPQRS"
                             placeholder="Selecciona un archivo" required>
-                          <label class="custom-file-label" for="fileInputPQRS">Seleccionar</label>
+                          <!-- <label class="custom-file-label" for="fileInputPQRS">Seleccionar</label> -->
                         </div>
                       </div>
                       
@@ -178,8 +187,8 @@
 
   <script src="../js/bs-custom-file-input.js"></script>
 
-  <script src="../js/main.js"></script>
   <script src="../js/segmentacion.js"></script>
+  <script src="../js/main.js"></script>
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>

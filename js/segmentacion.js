@@ -29,7 +29,7 @@ $(document).ready(function(){
   );
 
 
-  $("#form_upload_arrhythmia_normalizacion").validate({
+  $("#form_upload_arrhythmia_segmentacion").validate({
     rules: {
         fileInputNormalizado: {
         required: true,
@@ -79,14 +79,16 @@ $("#form_upload_arrhythmia_segmentacion").submit(function (e) {
 
   var fileInput = $("#fileInputNormalizado")[0].files[0];
   var fileInput2 = $("#fileInputPQRS")[0].files[0];
+  var fileInput3 = $("#fileInputEvents")[0].files[0];
 
-  formData.append("file", fileInput);
-  formData.append("file2", fileInput2);
+  formData.append("normalizacion", fileInput);
+  formData.append("pqrs", fileInput2);
+  formData.append("eventos", fileInput3);
     
   const Container = document.getElementById('segmentacion-container');
   const ContainerButton = document.getElementById('segmentacion-button');
   $.ajax({
-    url: "http://127.0.0.1:5003/segmentacion",
+    url: "http://127.0.0.1:5003/segmentacionMethod",
     type: "POST",
     data: formData,
     contentType: false,

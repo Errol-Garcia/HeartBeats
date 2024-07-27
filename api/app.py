@@ -22,10 +22,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/',methods=['POST'])
 def index():
-    # filename = upload_data(request.files['file'])
-    # filename2 = upload_data(request.files['file2'])
-    # filename3 = upload_data(request.files['file3'])
-    filename = "100"
+    filename = upload_data(request.files['file'])
+    filename2 = upload_data(request.files['file2'])
+    filename3 = upload_data(request.files['file3'])
+    # filename = "100"
     dts, etq =preprocesamiento.inicio(filename)
 
     return jsonify({"fileName": filename})
@@ -58,6 +58,7 @@ def get_ecg(filename):
 
 @app.route('/predict', methods=['POST'])
 def fit():
+    
     data =  request.get_json()
 
     file_names = data['fileNames']
@@ -97,9 +98,6 @@ def fit():
     }
     np.savetxt(f'./files/etiquetas-{register_name}.dat',predicted_classes)
 
-
-    
-    
 # Mostrar las predicciones
     print("Tamaño:", predicted_classes.size)
     cont = 0
@@ -141,15 +139,15 @@ def normalizar():
     data_normal=normalizacion(raw_data)
     
     np.savetxt(f'./files/Normalizacion-{filename}.dat',data_normal)
+    id_events = np.array([id_events])
+    np.savetxt(f'./files/id_eventos-{filename}.dat', id_events, fmt='%s')
     name = f'Normalizacion-{filename}.dat'
-    
-    
+        
     return jsonify({"fileName": name}) 
 
 
 @app.route('/pqrs',methods=['POST'])
 def pqrs():
-    
     filename = upload_data(request.files['file'])
     filename2 = upload_data(request.files['file2'])
     filename3 = upload_data(request.files['file3'])
@@ -161,54 +159,113 @@ def pqrs():
     
     return jsonify({"fileName": name})  
 
-@app.route('/segmentacion',methods=['POST'])
-def segmentacion():
-    # TODO no funciona adecuadamente este metodo
-    file1 = request.files['file']
-    file2 = request.files['file2']
+@app.route('/segmentacionMethod',methods=['POST'])
+def segmentacionMethod():
     
-    file_bytes1 = file1.read()
-    file_bytes2 = file2.read()
+    datosSeg=[]
+    dts=[]
+    datosSegmentados=[]
+    etiquetas1=[]
+    etiquetas2=[]
     
-    file_stream1 = io.BytesIO(file_bytes1)
-    # file_stream2 = io.BytesIO(file_bytes2)
-    np_array1 = np.frombuffer(file_stream1.read(), dtype=np.uint32)
-    # np_array1 = np.loadtxt(file_bytes1)
-    # np_array2 = np.loadtxt(file2)
-    # np_array1 = np.loadtxt(file1, dtype=float)
-    np_array2 = np.loadtxt(file2, dtype=float)
+    normalizacion = upload_data(request.files['normalizacion'])
+    pqrs = upload_data(request.files['pqrs'])
+    eventos = upload_data(request.files['eventos'])
     
-    p=segmentacion(np_array1, np_array2 )
+    normalizacion = np.loadtxt(f"./files/{normalizacion}.dat")
+    id_events = np.loadtxt(f"./files/{eventos}.dat", dtype=str)
     
-    # np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
-    # name = f'PQRS-{filename}.dat'
+    pqrs = np.loadtxt(f"./files/{pqrs}.dat")
+    pqrs = pqrs.astype(int)
     
-    return jsonify({"fileName": "name"})  
+    p=segmentacion(normalizacion, pqrs )
+    
+    datosSeg.append(p)
+
+    for i in range(len(datosSeg)):
+        for j in range(len(datosSeg[i])):
+            datosSegmentados.append(datosSeg[i][j])
+
+    ll=filtro(datosSegmentados)
+    #Binarizacion de las etiquetas
+    etiquetas1.append(Binarizacion(id_events))
 
 
-@app.route('/predict-only',methods=['POST'])
-def segmentacion():
-    # TODO
-    file1 = request.files['file']
-    file2 = request.files['file2']
+    for i in range(len(etiquetas1)):
+        for j in range(len(etiquetas1[i])):
+            etiquetas2.append(etiquetas1[i][j])
+    """
+    se completan los datos y las etiquetas con el fin de que tengan la misma
+    la misma longitud y se realiza el filtro de los mismos
+    """
+    etq, dts = completar(etiquetas2, datosSegmentados)
+
+    dtsCom=[]
+    etqCom=[]
+
+    #se ubica en una sola lista los datos de todos los regitros, asi mismo con las etiquetas
+    for i in range(len(etq)):
+        for j in range(len(etq[i])):
+            if(etq[i][j]==1):
+
+                dtsCom.append(dts[i][j])
+                etqCom.append(1)
+            else:
+
+                dtsCom.append(dts[i][j])
+                etqCom.append(0)
+
+    #se ajusta los segmentos de datos para que tengan la misma longitud
+    dtsCom=ajusteDatos(dtsCom)
+
+    np.savetxt(f'./files/datos.dat',dtsCom)
     
-    file_bytes1 = file1.read()
-    file_bytes2 = file2.read()
+    return jsonify({"fileName": "datos.dat"})  
+
+
+@app.route('/predictOnly',methods=['POST'])
+def predictOnly():
+
+    register_name = upload_data(request.files['file'])
     
-    file_stream1 = io.BytesIO(file_bytes1)
-    # file_stream2 = io.BytesIO(file_bytes2)
-    np_array1 = np.frombuffer(file_stream1.read(), dtype=np.uint32)
-    # np_array1 = np.loadtxt(file_bytes1)
-    # np_array2 = np.loadtxt(file2)
-    # np_array1 = np.loadtxt(file1, dtype=float)
-    np_array2 = np.loadtxt(file2, dtype=float)
+    X_new = np.loadtxt(f"./files/{register_name}.dat")
     
-    p=segmentacion(np_array1, np_array2 )
+    segment_size = 100  # Tamaño de cada segmento
+    num_segments = len(X_new) // segment_size
     
-    # np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
-    # name = f'PQRS-{filename}.dat'
+    try:
+        X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
+    except ValueError as e:
+        print("Error al reestructurar el array:", e)
+        # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
+        exit(1)
+
+    path="./modelo_CNN1D.h5"
+    model= tf.keras.models.load_model(path)
     
-    return jsonify({"fileName": "name"})  
+    predictions = model.predict(X_newShape)
+    
+    predicted_classes = np.argmax(predictions, axis=1)
+    
+    json_data = {
+        "datos": X_new.tolist(),
+        "etiquetas": np.array(predicted_classes)
+    }
+    np.savetxt(f'./files/etiquetas.dat',predicted_classes)
+    
+    predicted_classes = [predicted_classes]
+    
+    etiquetas = np.loadtxt(f'./files/etiquetas.dat').tolist()
+    json_data = {
+        "datos": X_new.tolist(),
+        "etiquetas": etiquetas
+    }
+    
+    # Guardar el JSON en un archivo
+    with open('datos.json', 'w') as f:
+        json.dump(json_data, f)
+        
+    return jsonify({"fileName": "etiquetas.dat"})  
 
 
 if __name__ == '__main__':

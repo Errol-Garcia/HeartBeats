@@ -34,12 +34,10 @@
       </div>
 
       <ul class="list-unstyled components">
-        <li class="active">
           <a href="./normalizacion.html">
             <i class="fas fa-home"></i>
             Normalizar
           </a>
-        </li>
         <li>
           <a href="./pqrs.html">
             <i class="fa-regular fa-heart"></i>
@@ -47,16 +45,18 @@
           </a>
         </li>
         <li>
-          <a href="./segmentacion.html">
-            <i class="fa-solid fa-file-waveform"></i>
-            Segmentación
-          </a>
+            <a href="./segmentacion.html">
+              <i class="fa-solid fa-file-waveform"></i>
+              Segmentación
+            </a>
         </li>
         <li>
-          <a href="./predecir.html">
-            <i class="fas fa-solid fa-brain"></i>
-            Predecir
-          </a>
+          <li class="active">
+            <a href="./predecir.html">
+              <i class="fas fa-solid fa-brain"></i>
+              Predecir
+            </a>
+          </li>
         </li>
         <li>
           <a href="./viewECG.html">
@@ -100,40 +100,34 @@
             <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
               <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
                 <div class="card-body">
-                  <div class="upload-area" id="upload-area">
-                    <form id="form_upload_arrhythmia" action="#" method="post" novalidate="novalidate">
+                  <div class="upload-area">
+                    <form id="form_upload_arrhythmia_predecir" action="#" method="post" novalidate="novalidate">
                       <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
-
                       <!-- Registro (.dat) -->
                       <div class="col-lg-12 mb-2">
-                        <label for="fileInput" class="col-form-label">Registro (.dat)</label>
+                        <label for="fileInput" class="col-form-label">Registro Normalizado (.dat)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInput" id="fileInput"
+                          <input type="file" class="form-control" name="fileInput" id="fileInput"
                             placeholder="Selecciona un archivo" required>
-                          <label class="custom-file-label" for="fileInput">Seleccionar</label>
+                          <!-- <label class="custom-file-label" for="fileInputNormalizado">Seleccionar</label> -->
                         </div>
                       </div>
-
+                      
                       <div class="col-lg-12 text-end g-2">
                         <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
                           Cargar</button>
+                        <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
+                          Limpiar</div>
                       </div>
                     </form>
                   </div>
-                  <div class="predict-area hidden" id="formContainer">
-                      <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-                        <br>
-                        <br>
-                      <div class="col-lg-12 text-center mb-2">
-                        <div id="ecg-plot"></div>
+                  <div class="container my-4 hidden" id="predecir-container">
+                    <div class="row">
+                      <div class="col text-center" id="predecir-button">
+                        <button id="download-btn" class="btn btn-primary">
+                          Descargar 
+                      </button>
                       </div>
-
-                      <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
-                        Limpiar</div>
-                  </div>
-                  <div class="signal-ECG hidden" id="Container">
-                    <div class="col-lg-12 text-center mb-2">
-                      <div id="ecg-plot2"></div>
                     </div>
                   </div>
                 </div>
@@ -174,8 +168,8 @@
 
   <script src="../js/bs-custom-file-input.js"></script>
 
+  <script src="../js/predecir.js"></script>
   <script src="../js/main.js"></script>
-  <script src="../js/viewECG.js"></script>
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>
