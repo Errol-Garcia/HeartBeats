@@ -52,7 +52,7 @@ const download = $("#download-btn");
 
 e.preventDefault();
 
-getStatusbtnSubmit();
+// getStatusbtnSubmit();
 
 var formData = new FormData();
 
@@ -100,3 +100,19 @@ a.click();
 document.body.removeChild(a);
 });
 
+
+function disableBtnSubmit() {
+  $("#btn_submit").attr("disabled", "disabled");
+  $("#btn_submit").html(`
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Cargando...
+  `);
+}
+
+function enableBtnSubmit() {
+  $("#btn_submit").html(`
+      <i class="fa-solid fa-upload"></i> Cargar
+  `);
+
+  $("#btn_clean").removeClass("d-none");
+}
