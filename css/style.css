@@ -80,13 +80,13 @@ body {
   margin-top: 80px;
 } */
 .container {
-  height: 100vh; /* Para ocupar toda la altura de la pantalla */
-  margin-top: 200px;
+  height: auto; /* Para ocupar toda la altura de la pantalla */
+  /* margin-top: 200px; */
 }
 .container-footer {
   height: 10vh; /* Para ocupar toda la altura de la pantalla */
 }
 .card {
-  height: 400px; /* Ajusta la altura según sea necesario */
+  height: auto; /* Ajusta la altura según sea necesario */
   cursor: pointer;
 }

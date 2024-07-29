@@ -116,3 +116,11 @@ function enableBtnSubmit() {
 
   $("#btn_clean").removeClass("d-none");
 }
+
+function mostarAlertaUpload() {
+  Swal.fire({
+    icon: "error",
+    title: "Oops...",
+    text: "Los archivos cargados deben tener el mismo nombre",
+  });
+}

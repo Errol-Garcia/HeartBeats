@@ -140,10 +140,12 @@ def normalizar():
     
     np.savetxt(f'./files/Normalizacion-{filename}.dat',data_normal)
     id_events = np.array([id_events])
-    np.savetxt(f'./files/id_eventos-{filename}.dat', id_events, fmt='%s')
+    
+    np.savetxt(f'./files/Eventos-{filename}.dat', id_events, fmt='%s')
     name = f'Normalizacion-{filename}.dat'
+    eventos = f'Eventos-{filename}.dat'
         
-    return jsonify({"fileName": name}) 
+    return jsonify({"fileName": name, "fileEvento":eventos}) 
 
 
 @app.route('/pqrs',methods=['POST'])
@@ -262,7 +264,7 @@ def predictOnly():
     }
     
     # Guardar el JSON en un archivo
-    with open('datos.json', 'w') as f:
+    with open('files/datos.json', 'w') as f:
         json.dump(json_data, f)
         
     return jsonify({"fileName": "etiquetas.dat"})  

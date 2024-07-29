@@ -69,12 +69,12 @@ def inicio(nombreArchivo):
 
 
     # Nombre del archivo CSV
-    nombre_archivo = f'./files/datos-{nombreArchivo}.csv'
+    # nombre_archivo = f'./files/datos-{nombreArchivo}.csv'
 
-    # Abrir el archivo en modo de escritura y escribir los datos
-    with open(nombre_archivo, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(dtsCom)
+    # # Abrir el archivo en modo de escritura y escribir los datos
+    # with open(nombre_archivo, mode='w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerows(dtsCom)
     #Se guarda los datos
     # np.savetxt('././files/datos.dat',dtsCom)
     # np.savetxt('././files/etiquetas.dat',etqCom)

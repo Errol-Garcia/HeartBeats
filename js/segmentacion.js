@@ -27,6 +27,19 @@ $(document).ready(function(){
     },
     "la extension no es la adecuada"
   );
+  $.validator.addMethod(
+    "extensionFile3",
+    function (value, element, params) {
+      // Obtener el nombre del archivo sin la extensión
+      var fileInput = value.split(".")[1];
+      if (fileInput == "dat") {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    "la extension no es la adecuada"
+  );
 
 
   $("#form_upload_arrhythmia_segmentacion").validate({
@@ -34,6 +47,10 @@ $(document).ready(function(){
         fileInputNormalizado: {
         required: true,
         extensionFile1: ["#fileInputNormalizado"],
+      },
+        fileInputEvents: {
+        required: true,
+        extensionFile1: ["#fileInputEvents"],
       },
       fileInputPQRS: {
         required: true,
@@ -43,11 +60,15 @@ $(document).ready(function(){
     messages: {
         fileInputNormalizado: {
         required: "Por favor cargue un registro",
-        extensionFile1: "La extensión no es la solicitada, debe ser (.atr)",
+        extensionFile1: "La extensión no es la solicitada, debe ser (.dat)",
+      },
+      fileInputEvents: {
+        required: "Por favor cargue un registro",
+        extensionFile2: "La extensión no es la solicitada, debe ser (.dat)",
       },
       fileInputPQRS: {
         required: "Por favor cargue un registro",
-        extensionFile2: "La extensión no es la solicitada, debe ser (.hea)",
+        extensionFile3: "La extensión no es la solicitada, debe ser (.dat)",
       },
     },
     highlight: function (element, errorClass, validClass) {
@@ -125,26 +146,29 @@ document.getElementById('download-btn').addEventListener('click', function() {
   document.body.removeChild(a);
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  var input1 = document.getElementById("fileInputNormalizado");
-  var input2 = document.getElementById("fileInputPQRS");
 
-  if (input1) {
-    input1.addEventListener("change", function (event) {
-      var inputFile = event.target;
-      var fileName =
-        inputFile.files.length > 0 ? inputFile.files[0].name : "Seleccionar";
-      inputFile.nextElementSibling.innerText = fileName;
-    });
-  }
+function disableBtnSubmit() {
+  $("#btn_submit").attr("disabled", "disabled");
+  $("#btn_submit").html(`
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Cargando...
+  `);
+}
 
-  if (input2) {
-    input2.addEventListener("change", function (event) {
-      var inputFile = event.target;
-      var fileName =
-        inputFile.files.length > 0 ? inputFile.files[0].name : "Seleccionar";
-      inputFile.nextElementSibling.innerText = fileName;
-    });
-  }
+function enableBtnSubmit() {
+  $("#btn_submit").html(`
+      <i class="fa-solid fa-upload"></i> Cargar
+  `);
 
-});
+  $("#btn_clean").removeClass("d-none");
+}
+
+function getStatusbtnSubmit() {}
+
+function mostarAlertaUpload() {
+  Swal.fire({
+    icon: "error",
+    title: "Oops...",
+    text: "Los archivos cargados deben tener el mismo nombre",
+  });
+}

@@ -153,38 +153,6 @@ $(document).ready(function () {
   
   });
   
-  // document.addEventListener("DOMContentLoaded", function () {
-  //   var input1 = document.getElementById("fileInput1");
-  //   var input2 = document.getElementById("fileInput2");
-  //   var input3 = document.getElementById("fileInput3");
-  
-  //   if (input1) {
-  //     input1.addEventListener("change", function (event) {
-  //       var inputFile = event.target;
-  //       var fileName =
-  //         inputFile.files.length > 0 ? inputFile.files[0].name : "Seleccionar";
-  //       inputFile.nextElementSibling.innerText = fileName;
-  //     });
-  //   }
-  
-  //   if (input2) {
-  //     input2.addEventListener("change", function (event) {
-  //       var inputFile = event.target;
-  //       var fileName =
-  //         inputFile.files.length > 0 ? inputFile.files[0].name : "Seleccionar";
-  //       inputFile.nextElementSibling.innerText = fileName;
-  //     });
-  //   }
-  
-  //   if (input3) {
-  //     input3.addEventListener("change", function (event) {
-  //       var inputFile = event.target;
-  //       var fileName =
-  //         inputFile.files.length > 0 ? inputFile.files[0].name : "Seleccionar";
-  //       inputFile.nextElementSibling.innerText = fileName;
-  //     });
-  //   }
-  // });
   
   function getStatusbtnSubmit() {}
   
@@ -291,3 +259,11 @@ $(document).ready(function () {
       $('#sidebar').toggleClass('active');
     });
   });
+  
+  function mostarAlertaUpload() {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "Los archivos cargados deben tener el mismo nombre",
+    });
+  }
