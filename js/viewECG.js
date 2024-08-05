@@ -131,12 +131,15 @@ $(document).ready(function () {
             console.log(response.filename);
             response1 = response;
             enableBtnSubmit();
-            // Container.classList.addClass('hidden');
             $("#upload-area").empty();
             fetchECGData(response['fileName'])
               .then((data) => plotECG(data));
           formContainer.classList.remove('hidden');
   
+          },
+          error: function (xhr, status, error) {
+            $("#txtErrorUpload").removeClass('hidden');
+            enableBtnUpload();
           },
         });
    
@@ -180,6 +183,13 @@ $(document).ready(function () {
     $("#btn_clean").removeClass("d-none");
   }
   
+  function enableBtnUpload() {
+    $("#btn_submit").html(`
+        <i class="fa-solid fa-upload"></i> Cargar
+    `);
+    $("#btn_submit").removeAttr("disabled");
+  }
+
   async function fetchECGData(filename) {
     const response = await fetch("http://127.0.0.1:5003/ecg/" + filename);
     const data = await response.json();

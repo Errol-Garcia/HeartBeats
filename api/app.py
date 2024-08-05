@@ -25,11 +25,9 @@ def index():
     filename = upload_data(request.files['file'])
     filename2 = upload_data(request.files['file2'])
     filename3 = upload_data(request.files['file3'])
-    # filename = "100"
     dts, etq =preprocesamiento.inicio(filename)
 
     return jsonify({"fileName": filename})
-# return f'The files {filename} uploaded successfully', 200
 
 
 def upload_data(file):
@@ -49,10 +47,8 @@ def upload_data(file):
 @app.route('/ecg/<filename>', methods=['GET'])
 def get_ecg(filename):
     data = wfdb.rdrecord(f'./files/{filename}')
-    # data = np.loadtxt("./files/datos-100.dat")
     
     ecg_data = data.p_signal[:, 0].tolist()
-    # ecg_data = data[:,1].tolist()
     
     return jsonify(ecg_data)
 
@@ -62,27 +58,16 @@ def fit():
     data =  request.get_json()
 
     file_names = data['fileNames']
-    # print("name:",file_names[1].split('.')[0])
-    # register_name = file_names[1].split('.')[0]
     register_name = file_names
-    # print("NOMBRE DEL ARCHIVO",register_name)
     X_new = np.loadtxt(f"./files/datos-{register_name}.dat")
     
     segment_size = 100  # Tamaño de cada segmento
     num_segments = len(X_new) // segment_size
     
-    # Verificar el tamaño del array
-    print("Numero de segmentos", num_segments)
-    print("Tamaño original de X_new:", X_new.size)
-    print("Forma original de X_new:", X_new.shape)
-    print("X_new[0]:", X_new.shape[0])
-    print("X_new[1]:", X_new.shape[1])
-
     try:
         X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
     except ValueError as e:
         print("Error al reestructurar el array:", e)
-        # Manejar el error adecuadamente, tal vez ajustando num_samples o las dimensiones objetivo
         exit(1)
 
     path="./modelo_CNN1D.h5"
@@ -98,22 +83,13 @@ def fit():
     }
     np.savetxt(f'./files/etiquetas-{register_name}.dat',predicted_classes)
 
-# Mostrar las predicciones
-    print("Tamaño:", predicted_classes.size)
-    cont = 0
-    for i in predicted_classes:
-        if i==1:
-            cont += 1
-
-    print("hay: ", cont )
-
-    nombre_archivo = f'./files/etiquetas-{register_name}.csv'
+    # nombre_archivo = f'./files/etiquetas-{register_name}.csv'
 
     predicted_classes = [predicted_classes]
     # Abrir el archivo en modo de escritura y escribir los datos
-    with open(nombre_archivo, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(predicted_classes)
+    # with open(nombre_archivo, mode='w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerows(predicted_classes)
     
     etiquetas = np.loadtxt(f'./files/etiquetas-{register_name}.dat').tolist()
     json_data = {
@@ -121,12 +97,41 @@ def fit():
         "etiquetas": etiquetas
     }
     
+    record = wfdb.rdrecord(os.path.join(app.config['UPLOAD_FOLDER'], '100'))
+    total_samples = record.sig_len
+    sampling_frequency = record.fs
+    data = record.p_signal.flatten().tolist()
+    
+    atr_file = os.path.join(app.config['UPLOAD_FOLDER'], '100.atr')
+    if os.path.exists(atr_file):
+        annotations = wfdb.rdann(os.path.join(app.config['UPLOAD_FOLDER'], '100'), 'atr')
+        arrythmia_labels = annotations.aux_note
+    else:
+        arrythmia_labels = [0] * total_samples  # Placeholder si no hay etiquetas
+
+    arrhythmia_data = etiquetas
+    segment_duration_seconds = 10
+    segment_size = segment_duration_seconds * sampling_frequency
+    num_segments = int(np.ceil(total_samples / segment_size))
+    
+    data = [elemento for fila in X_new for elemento in fila]
     # Guardar el JSON en un archivo
-    with open('datos.json', 'w') as f:
-        json.dump(json_data, f)
+    # with open('datos.json', 'w') as f:
+    #     json.dump(json_data, f)
+      
+    response = {
+        'total_samples': total_samples,
+        'sampling_frequency': sampling_frequency,
+        'segment_size': segment_size,
+        'num_segments': num_segments,
+        'data': data,
+        'arrhythmia': arrhythmia_data
+    }
+
+    return jsonify(response)  
+    
         
-    # return jsonify({"response": "la respuesta es:"})
-    return jsonify({"message": "Archivos recibidos", "data": json_data})
+    # return jsonify({"message": "Archivos recibidos", "data": json_data})
 
 
 @app.route('/normalizacion',methods=['POST'])
@@ -196,10 +201,7 @@ def segmentacionMethod():
     for i in range(len(etiquetas1)):
         for j in range(len(etiquetas1[i])):
             etiquetas2.append(etiquetas1[i][j])
-    """
-    se completan los datos y las etiquetas con el fin de que tengan la misma
-    la misma longitud y se realiza el filtro de los mismos
-    """
+            
     etq, dts = completar(etiquetas2, datosSegmentados)
 
     dtsCom=[]

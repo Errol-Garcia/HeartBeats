@@ -16,8 +16,7 @@ def inicio(nombreArchivo):
 
     datosSeg=[]
     etiquetas1=[]
-
-    # pdb.set_trace()
+    
     #se llama a los registros
     raw_data, id_events=llamado(nombreArchivo)
     #se normaliza
@@ -65,21 +64,8 @@ def inicio(nombreArchivo):
 
     #se ajusta los segmentos de datos para que tengan la misma longitud
     dtsCom=ajusteDatos(dtsCom)
-
-
-
-    # Nombre del archivo CSV
-    # nombre_archivo = f'./files/datos-{nombreArchivo}.csv'
-
-    # # Abrir el archivo en modo de escritura y escribir los datos
-    # with open(nombre_archivo, mode='w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerows(dtsCom)
-    #Se guarda los datos
-    # np.savetxt('././files/datos.dat',dtsCom)
-    # np.savetxt('././files/etiquetas.dat',etqCom)
+    
     np.savetxt(f'./files/datos-{nombreArchivo}.dat',dtsCom)
-    # np.savetxt(f'C:/wamp64/www/Detector-de-arritmias/files/etiquetas-{nombreArchivo}.dat',etqCom)
-
+    
     return dtsCom,etqCom
 

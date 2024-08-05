@@ -1,10 +1,24 @@
+
+let response1 = "";
+let chart;
+let chartData = [];
+let arrhythmiaData = [];
+let currentIndex = 0;
+let interval;
+let segmentSize;
+let samplingFrequency;
+let totalSamples;
+let numSegments;
+let totalTime;
+let currentSegment = 1;
+let isPlaying = false;
+
+
 $(document).ready(function () {
 
   $('#sidebarCollapse').on('click', function () {
     $('#sidebar').toggleClass('active');
   });
-  
-  var response1 = "";
 
   $.validator.addMethod(
     "extensionFile1",
@@ -119,18 +133,6 @@ $(document).ready(function () {
       formData.append("file2", fileInput2);
       formData.append("file3", fileInput3);
 
-      // $.ajax({
-      //   url: "http://127.0.0.1:5003/",
-      //   type: "POST",
-      //   data: formData,
-      //   contentType: false,
-      //   processData: false,
-      //   success: function (response) {
-      //     response1 = response;
-      //     $("#response_load").html(response);
-      //     $(".i_load_data").attr("style", "color: #1cc88a !important;");
-      //   },
-      // });
       const formContainer = document.getElementById('formContainer');
       const Container = document.getElementById('upload-area');
       $.ajax({
@@ -143,31 +145,15 @@ $(document).ready(function () {
           console.log(response.filename);
           response1 = response;
           enableBtnSubmit();
-          // Container.classList.addClass('hidden');
           $("#upload-area").empty();
           fetchECGData(response['fileName'])
-            //.then((response) => response.json())
             .then((data) => plotECG(data));
-
-          // let predictHTML = `
-          //             <form id="form_predict_arrhythmia" action="#" method="post" novalidate="novalidate">
-          //                 <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
-  
-          //                 <div class="col-lg-12 text-center mb-2">
-          //       <div id="ecg-plot"></div>
-          //                 </div>
-  
-          //                 <div class="col-lg-12 text-end">
-          //                     <button type=" submit" id="btn_submit" class="btn btn-dark"><i
-          //                             class="fa-solid fa-brain"></i>
-          //                         Predecir</button>
-          //                 </div>
-          //             </form>
-          //         `;
-
-          // predictArea.html(predictHTML);
         formContainer.classList.remove('hidden');
 
+        },
+        error: function (xhr, status, error) {
+          $("#txtErrorUpload").removeClass('hidden');
+          enableBtnUpload();
         },
       });
  
@@ -177,7 +163,6 @@ $(document).ready(function () {
         predictArea.empty();
         btnSubmit.removeAttr("disabled");
         $("#btn_clean").addClass("d-none");
-        // $("#form_upload_arrhythmia").trigger("reset");
         location.reload();
       });
     }
@@ -186,17 +171,16 @@ $(document).ready(function () {
   //PREDICCIÓN DE LOS
   $("#form_predict_arrhythmia").submit(function (e) {
     
+    disableBtnSubmit();
     e.preventDefault();
-    // e.preventDefault();
-
     console.log("file name 1: ", response1["fileName"]);
 
     var Data = {
       fileNames: response1["fileName"]
     };
-
     
-    const ContainerSignal = document.getElementById('signal-ECG');
+    const formContainer = document.getElementById('formContainer');
+    const ContainerSignal = document.getElementById('ContainerPredict');
 
     $.ajax({
       url: "http://127.0.0.1:5003/predict",
@@ -205,12 +189,23 @@ $(document).ready(function () {
       contentType: "application/json",
       processData: false,
       success: function (data) {
-        
-        plotECG3();
-          ContainerSignal.classList.remove('hidden');
+        stopPlot();
+        $("#formContainer").empty();
+        ContainerSignal.classList.remove('hidden');
+
+        samplingFrequency = data.sampling_frequency;
+        segmentSize = Math.floor(samplingFrequency);
+        totalSamples = data.total_samples;
+        chartData = data.data;
+        arrhythmiaData = data.arrhythmia; // Asumimos que estos datos están en el JSON de respuesta
+        numSegments = data.num_segments;
+        totalTime = totalSamples / samplingFrequency;
+        renderChart(chartData.slice(0, 2000));
+        updateProgress();
       },
       error: function (xhr, status, error) {
-        console.error("Error en la solicitud: " + status + ", " + error);
+        $("#txtErrorUpload").removeClass('hidden');
+        enableBtnUpload();
       },
     });
   });
@@ -276,6 +271,12 @@ function enableBtnSubmit() {
 
   $("#btn_clean").removeClass("d-none");
 }
+function enableBtnUpload() {
+  $("#btn_submit").html(`
+      <i class="fa-solid fa-upload"></i> Cargar
+  `);
+  $("#btn_submit").removeAttr("disabled");
+}
 
 async function fetchECGData(filename) {
   const response = await fetch("http://127.0.0.1:5003/ecg/" + filename);
@@ -284,6 +285,7 @@ async function fetchECGData(filename) {
 }
 
 //IMPRESION FUNCIONAL DE GRAFICA
+let intervalId;  
 
 function plotECG(data) {
   const trace = {
@@ -335,7 +337,7 @@ function plotECG(data) {
   const interval = 1000 / samplingRate;
   let currentIndex = 1000;
 
-  setInterval(() => {
+  intervalId = setInterval(() => {
     if (currentIndex < data.length) {
       const newData = data.slice(currentIndex, currentIndex + 1);
       const update = {
@@ -351,196 +353,164 @@ function plotECG(data) {
   }, interval);
 }
 
-function plotECG2(data) {
-  var datosall;
-  datosall=data;
-  const initialData = data;
 
-  const seriesData = [
-    { name: 'No Arritmia', color: 'black', data: [] },
-    { name: 'Con Arritmia', color: 'red', data: [] }
-  ];
-
-// Crear el gráfico
-  const chart = Highcharts.chart('ecg-plot2', {
-    chart: {
-        type: 'line',
-        animation: Highcharts.svg, 
-    },
-    title: {
-        text: 'Cardiograma Animado'
-    },
-    xAxis: {
-        title: {
-            text: 'Tiempo'
-        }
-    },
-    yAxis: {
-        title: {
-            text: 'Amplitud'
-        }
-    },
-    series: seriesData
-  });
-
-
-  let index = 0;
-  const interval = 50; // Intervalo
-  datos=initialData.datos.flat()
-  function addPoint() {
-  
-  if (index < datos.length) {                    
-      
-      
-      if (index < 2000) {
-          for(i=0;i<15;i++){
-              const point =  { x: index, y: datos[index]};
-              chart.series[0].addPoint(point, true, false);
-              index+=1;
-          }
-      } 
-      else {
-          pointlast={ x: index-1, y: datos[index-1]}
-          if(index==2000)chart.series[1].addPoint(pointlast, true, false);
-          for(i=0;i<15;i++){
-              const point =  { x: index, y: datos[index]};
-              chart.series[1].addPoint(point, true, false);
-              index+=1;
-          }                        
-          
-      } 
-      
-      // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
-      if (index>578){
-          for(i=0;i<100;i++){
-              if (chart.series[0].data.length > 0) {
-                  chart.series[0].data[0].remove(false);
-              }
-              else{
-                  chart.series[1].data[0].remove(false);
-              }
-
-          }
-          
-          
-      }
-      
-      chart.redraw();
-      //index+=1;
-      
-  } else {
-      clearInterval(timer);
-  }
-}
-
-const timer = setInterval(addPoint, interval);
-}
- 
-
-function plotECG3(){
-  var datosall;
-  fetch('./api/datos.json')  // Ruta al archivo JSON
-      .then(response => response.json())
-      .then(data => {
-          datosall=data;
-          const initialData = data;
-
-      const seriesData = [
-          { name: 'No Arritmia', color: 'black', data: [] },
-          { name: 'Con Arritmia', color: 'red', data: [] }
-      ];
-
-      // Crear el gráfico
-      const chart = Highcharts.chart('ecg-plot2', {
-          chart: {
-              type: 'line',
-              animation: Highcharts.svg, 
-          },
-          title: {
-              text: 'Cardiograma Animado'
-          },
-          xAxis: {
-              title: {
-                  text: 'Tiempo'
-              }
-          },
-          yAxis: {
-              title: {
-                  text: 'Amplitud'
-              }
-          },
-          series: seriesData
-      });
-
-      
-      let index = 0;
-      const interval = 50; // Intervalo
-      datos=initialData.datos.flat()
-      function addPoint() {
-          
-          if (index < datos.length) {                    
-              
-              
-              if (index < 2000) {
-                  for(i=0;i<80;i++){
-                      const point =  { x: index, y: datos[index]};
-                      chart.series[0].addPoint(point, true, false);
-                      index+=1;
-                  }
-              } 
-              else {
-                  pointlast={ x: index-1, y: datos[index-1]}
-                  if(index==2000)chart.series[1].addPoint(pointlast, true, false);
-                  for(i=0;i<80;i++){
-                      const point =  { x: index, y: datos[index]};
-                      chart.series[1].addPoint(point, true, false);
-                      index+=1;
-                  }                        
-                  
-              } 
-              
-              // Eliminar el punto más antiguo para mantener solo 578 puntos visibles
-              if (index>578){
-                  for(i=0;i<100;i++){
-                      if (chart.series[0].data.length > 0) {
-                          chart.series[0].data[0].remove(false);
-                      }
-                      else{
-                          chart.series[1].data[0].remove(false);
-                      }
-
-                  }
-                  
-                  
-              }
-              
-              chart.redraw();
-              //index+=1;
-              
-          } else {
-              clearInterval(timer);
-          }
-      }
-
-      const timer = setInterval(addPoint, interval);
-      })
-      .catch(error => console.error('Error al cargar los datos:', error));  
-}
-
-$(document).ready(function () {
-  $('#sidebarCollapse').on('click', function () {
-    $('#sidebar').toggleClass('active');
-  });
-});
-
-document.getElementById('card1').addEventListener('click', function() {
-  window.location.href = './pages/normalizacion.html';
-});
-
-document.getElementById('card2').addEventListener('click', function() {
-  window.location.href = './pages/completo.html'; // Cambia esta URL por la que desees
-});
 
 function recargar(){
   window.location.reload();
 }
+
+function renderChart(data) {
+  const labels = Array.from({ length: data.length }, (_, i) => i / samplingFrequency);
+  chart = new Chartist.Line('.ct-chart', {
+      labels: labels,
+      series: [data]
+  }, {
+      fullWidth: true,
+      chartPadding: { right: 40 },
+      lineSmooth: false,
+      showPoint: false,
+      axisX: {
+          labelInterpolationFnc: function(value, index) {
+              return index % (samplingFrequency * 2) === 0 ? `${(value).toFixed(2)}s` : null;
+          }
+      }
+  });
+}
+
+function updateChart() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+      clearInterval(interval);
+      currentIndex = chartData.length - segmentSize;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+
+/*
+function renderChart(data) {
+  const labels = Array.from({ length: data.length }, (_, i) => i / samplingFrequency);
+  const series = [];
+
+  let currentSeries = [];
+  let currentClass = arrhythmiaData[0] === 1 ? 'ct-series-a' : 'ct-series-b';
+
+  for (let i = 0; i < data.length; i++) {
+    const arrhythmia = arrhythmiaData[Math.floor(i / segmentSize)];
+
+    // Determine the class based on arrhythmia status
+    const newClass = arrhythmia === 0 ? 'ct-series-a' : 'ct-series-b';
+
+    if (newClass !== currentClass) {
+      series.push({ value: currentSeries, className: currentClass });
+      currentSeries = [];
+      currentClass = newClass;
+    }
+
+    currentSeries.push(data[i]);
+  }
+
+  if (currentSeries.length > 0) {
+    series.push({ value: currentSeries, className: currentClass });
+  }
+
+  new Chartist.Line('.ct-chart', {
+    labels: labels.slice(0, series.flat().length),
+    series: series.map(s => s.value)
+  }, {
+    fullWidth: true,
+    chartPadding: { right: 40 },
+    lineSmooth: false,
+    showPoint: false,
+    series: series.reduce((acc, s, i) => {
+      acc[`ct-series-${i}`] = { className: s.className };
+      return acc;
+    }, {}),
+    axisX: {
+      labelInterpolationFnc: function(value, index) {
+        //return index % (samplingFrequency * 2) === 0 ? `${(value).toFixed(2)}s` : null;
+          // Cambia este valor para ajustar la frecuencia de las etiquetas
+          const labelFrequency = samplingFrequency / 2; // Aumentar para menos etiquetas, reducir para más
+          if (typeof value === 'number') {
+            return index % labelFrequency === 0 ? `${value.toFixed(2)}s` : null;
+          }
+          return null;
+        
+      }
+    }
+  });
+}
+
+function updateChart() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+    clearInterval(interval);
+    currentIndex = chartData.length - segmentSize;
+  }
+  const dataSegment = chartData.slice(currentIndex, currentIndex + segmentSize);
+  const arrhythmiaSegment = arrhythmiaData.slice(Math.floor(currentIndex / segmentSize), Math.floor(currentIndex / segmentSize) + Math.ceil(dataSegment.length / segmentSize));
+  renderChart(dataSegment, arrhythmiaSegment);
+  updateProgress();
+}
+*/
+function updateProgress() {
+  const progressBar = document.getElementById('progress-bar');
+  const progressTime = document.getElementById('progress-time');
+  const progress = (currentIndex / totalSamples) * 100;
+  progressBar.value = progress;
+
+  const currentTime = currentIndex / samplingFrequency;
+  progressTime.textContent = `${formatTime(currentTime)}/${formatTime(totalTime)}`;
+
+  // Actualizar número de segmento
+  currentSegment = Math.floor(currentIndex / segmentSize) + 1;
+  document.querySelector('h2').textContent = `ECG Visualization - Segment ${currentSegment}`;
+
+  // Mostrar estado de arritmia
+  const arrhythmiaStatus = arrhythmiaData[currentSegment - 1];
+  document.querySelector('h2').textContent += ` - Arrhythmia: ${arrhythmiaStatus}`;
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function play() {
+  if (!isPlaying) {
+      isPlaying = true;
+      clearInterval(interval);
+      interval = setInterval(updateChart, 1000);
+  }
+}
+
+function pause() {
+  isPlaying = false;
+  clearInterval(interval);
+}
+
+function forward() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+      currentIndex = chartData.length - segmentSize;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+
+function backward() {
+  currentIndex -= segmentSize;
+  if (currentIndex < 0) {
+      currentIndex = 0;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+
+
+
+function stopPlot() {
+  clearInterval(intervalId);  // Detiene el intervalo
+}
+

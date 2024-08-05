@@ -8,11 +8,7 @@ import numpy as np
 
 # Funcion para llamar los registros
 def llamado(registr):
-    # regist=100+registr
-    # registro=str(regist)
-    # registro = '../../files/100'
     registro = f'./files/{registr}'
-    # registro = f'C:/wamp64/www/Detector-de-arritmias/api/files/{registr}'
     print(registro)
     size=650000
 
@@ -20,11 +16,8 @@ def llamado(registr):
     record=wfdb.rdrecord(registro,sampto=size)
     annotation = wfdb.rdann(registro,'atr',sampto=size)
 
-    # wfdb.plot_wfdb(record=record,annotation=annotation,title=registro)
-    # wfdb.plot_wfdb(record=record,title=registro)
-    # wfdb.plot_wfdb(record=record)
-    id_events=annotation.symbol#etiquetas
-    raw_data=record.p_signal#datos sin procesar
+    id_events=annotation.symbol
+    raw_data=record.p_signal
 
     return raw_data,id_events
 
@@ -45,10 +38,7 @@ def normalizacion(data):
 
 # Funcion para detectar el segmento QRS
 def detectorQRS(registr):
-    # regist=100+registr
-    # registro=str(regist)
     
-    # registro = '../../files/100'
     registro = f'./files/{registr}'
     record = wfdb.rdrecord(registro, channels=[0], physical=False)
     qrs_locs = processing.gqrs_detect(d_sig=record.d_signal[:,0], fs=record.fs, adc_gain=record.adc_gain[0], adc_zero=record.adc_zero[0])

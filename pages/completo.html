@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Predicción de arritmias cardíacas</title>
 
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css"> -->
   <link rel="stylesheet" href="../css/adminlte.min.css">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/styleMenu.css">
 
@@ -32,10 +32,6 @@
       <header>
         <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
           <div class="container-fluid">
-            <!-- <button type="button" id="sidebarCollapse" class="btn btn-info">
-              <i class="fas fa-align-left"></i>
-              <span>Menu</span>
-            </button> -->
             <a class="navbar-brand" style="margin-left: 10px;"><i class="fa-solid fa-heart-pulse text-danger"></i> Healthy Heart AI</a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -67,7 +63,7 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput" class="col-form-label">Registro (.atr)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInput1" id="fileInput1"
+                          <input type="file" accept=".atr" class="form-control custom-file-input" name="fileInput1" id="fileInput1"
                             placeholder="Selecciona un archivo" required>
                           <label class="custom-file-label" for="fileInput">Seleccionar</label>
                         </div>
@@ -75,9 +71,9 @@
 
                       <!-- Registro (.hea) -->
                       <div class="col-lg-12 mb-2">
-                        <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
+                        <label for="fileInput2"  class="col-form-label">Registro (.hea)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
+                          <input type="file" accept=".hea" class="form-control custom-file-input" name="fileInput2" id="fileInput2"
                             placeholder="Selecciona un archivo" required>
                           <label class="custom-file-label" for="fileInput2">Seleccionar</label>
                         </div>
@@ -87,12 +83,16 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
+                          <input type="file" accept=".dat" class="form-control custom-file-input" name="fileInput3" id="fileInput3"
                             placeholder="Selecciona un archivo" required>
                           <label class="custom-file-label" for="fileInput3">Seleccionar</label>
                         </div>
                       </div>
-
+                      
+                      <!-- Mensaje error -->
+                      <div class="col-lg-12 mb-2 hidden" id="txtErrorUpload">
+                        <label  class="col-form-label" style="color: red;">Hubo un error en el servidor</label>
+                      </div>
                       <div class="col-lg-12 text-end g-2">
                         <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
                           Cargar</button>
@@ -110,25 +110,41 @@
                         <div id="ecg-plot"></div>
                       </div>
 
+                      
                       <div class="col-lg-12 text-end">
                         <button type=" submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-brain"></i>
                           Predecir</button>
                       </div>
                     </form>
                   </div>
-                  <div class="signal-ECG hidden" id="Container">
+                  <div class="signal-ECG hidden " id="ContainerPredict">
                     <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+                    <h2 class="card-title text-center col-lg-12 mt-2 mb-2"></h2>
                     <div class="col-lg-12 text-center mb-2">
-                      <div id="ecg-plot2"></div>
+                      <div class="ct-chart"></div>
+                      <br>
+                      <br>
+                      <br>
+                        <div class="controls">
+                            <button id="play-button" onclick="play()">Play</button>
+                            <button onclick="pause()">Pause</button>
+                            <button onclick="forward()">Forward</button>
+                            <button onclick="backward()">Backward</button>
+                            <div id="progress-container">
+                                <progress id="progress-bar" value="0" max="100"></progress>
+                                <span id="progress-time">00:00/00:00</span>
+                            </div>
+                        </div>
                     </div>
+
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </div> 
       </main>
 
+      
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
@@ -161,7 +177,7 @@
   <script src="../js/bs-custom-file-input.js"></script>
 
   <script src="../js/main.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>
 

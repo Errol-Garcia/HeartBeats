@@ -5,8 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Predicción de arritmias cardíacas</title>
-
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css"> -->
   <link rel="stylesheet" href="../css/adminlte.min.css">
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -105,7 +103,7 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput" class="col-form-label">Registro (.atr)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control" name="fileInput1" id="fileInput1"
+                          <input type="file" accept=".atr" class="form-control" name="fileInput1" id="fileInput1"
                             placeholder="Selecciona un archivo" required>
                           <!-- <label class="custom-file-label" for="fileInput">Seleccionar</label> -->
                         </div>
@@ -115,7 +113,7 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control" name="fileInput2" id="fileInput2"
+                          <input type="file" accept=".hea" class="form-control" name="fileInput2" id="fileInput2"
                             placeholder="Selecciona un archivo" required>
                           <!-- <label class="custom-file-label" for="fileInput2">Seleccionar</label> -->
                         </div>
@@ -125,10 +123,15 @@
                       <div class="col-lg-12 mb-2">
                         <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
                         <div class="custom-file">
-                          <input type="file" class="form-control" name="fileInput3" id="fileInput3"
+                          <input type="file" accept=".dat" class="form-control" name="fileInput3" id="fileInput3"
                             placeholder="Selecciona un archivo" required>
                           <!-- <label class="custom-file-label" for="fileInput3">Seleccionar</label> -->
                         </div>
+                      </div>
+                      
+                      <!-- Mensaje error -->
+                      <div class="col-lg-12 mb-2 hidden" id="txtErrorUpload">
+                        <label  class="col-form-label" style="color: red;">Hubo un error en el servidor</label>
                       </div>
                       
                       <div class="col-lg-12 text-end g-2">
@@ -187,7 +190,6 @@
   <script src="../js/bs-custom-file-input.js"></script>
 
   <script src="../js/pqrs.js"></script>
-  <!-- <script src="../js/main.js"></script> -->
 
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>

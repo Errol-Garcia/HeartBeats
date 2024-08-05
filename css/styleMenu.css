@@ -55,12 +55,12 @@
 
   #sidebarCollapse {
     background-color: black;
-    border: 2px solid grey; /* Bordes grises */
-    color: white; /* Letra blanca */
+    border: 2px solid grey;
+    color: white;
   }
   
   #sidebarCollapse:hover {
-    background-color: darkgrey; /* O cualquier otro color para el hover */
+    background-color: darkgrey;
     border: 2px solid grey;
     color: white;
   }

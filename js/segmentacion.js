@@ -124,6 +124,10 @@ $("#form_upload_arrhythmia_segmentacion").submit(function (e) {
       downloadBtn.setAttribute('data-path', `${path}${filename}`);
       Container.classList.remove('hidden');
     },
+    error: function (xhr, status, error) {
+      $("#txtErrorUpload").removeClass('hidden');
+      enableBtnUpload();
+    },
   });
 
   disableBtnSubmit();
@@ -161,6 +165,13 @@ function enableBtnSubmit() {
   `);
 
   $("#btn_clean").removeClass("d-none");
+}
+
+function enableBtnUpload() {
+  $("#btn_submit").html(`
+      <i class="fa-solid fa-upload"></i> Cargar
+  `);
+  $("#btn_submit").removeAttr("disabled");
 }
 
 function getStatusbtnSubmit() {}
