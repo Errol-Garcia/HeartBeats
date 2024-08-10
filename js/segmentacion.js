@@ -6,7 +6,7 @@ $(document).ready(function(){
     function (value, element, params) {
       // Obtener el nombre del archivo sin la extensión
       var fileInput = value.split(".")[1];
-      if (fileInput == "dat") {
+      if (fileInput == "json") {
         return true;
       } else {
         return false;
@@ -60,7 +60,7 @@ $(document).ready(function(){
     messages: {
         fileInputNormalizado: {
         required: "Por favor cargue un registro",
-        extensionFile1: "La extensión no es la solicitada, debe ser (.dat)",
+        extensionFile1: "La extensión no es la solicitada, debe ser (.json)",
       },
       fileInputEvents: {
         required: "Por favor cargue un registro",
@@ -105,7 +105,8 @@ $("#form_upload_arrhythmia_segmentacion").submit(function (e) {
   formData.append("normalizacion", fileInput);
   formData.append("pqrs", fileInput2);
   formData.append("eventos", fileInput3);
-    
+  
+  $("#txtErrorUpload").addClass('hidden');
   const Container = document.getElementById('segmentacion-container');
   const ContainerButton = document.getElementById('segmentacion-button');
   $.ajax({

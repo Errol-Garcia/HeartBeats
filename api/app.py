@@ -26,8 +26,25 @@ def index():
     filename2 = upload_data(request.files['file2'])
     filename3 = upload_data(request.files['file3'])
     dts, etq =preprocesamiento.inicio(filename)
+    
+    record = wfdb.rdrecord(os.path.join("files", filename))
+    total_samples = record.sig_len
+    sampling_frequency = record.fs
+    # data = record.p_signal.flatten().tolist()
+    data = record.p_signal[:, 0].tolist()
 
-    return jsonify({"fileName": filename})
+    segment_duration_seconds = 10
+    segment_size = segment_duration_seconds * sampling_frequency
+    num_segments = int(np.ceil(total_samples / segment_size))
+    
+    response = {
+        'total_samples': total_samples,
+        'sampling_frequency': sampling_frequency,
+        'segment_size': segment_size,
+        'num_segments': num_segments,
+        'data': data
+    }
+    return jsonify({"fileName": filename, "response": response})
 
 
 def upload_data(file):
@@ -61,9 +78,6 @@ def fit():
     register_name = file_names
     X_new = np.loadtxt(f"./files/datos-{register_name}.dat")
     
-    segment_size = 100  # Tamaño de cada segmento
-    num_segments = len(X_new) // segment_size
-    
     try:
         X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
     except ValueError as e:
@@ -77,47 +91,19 @@ def fit():
     
     predicted_classes = np.argmax(predictions, axis=1)
     
-    json_data = {
-        "datos": X_new.tolist(),
-        "etiquetas": np.array(predicted_classes)
-    }
     np.savetxt(f'./files/etiquetas-{register_name}.dat',predicted_classes)
 
-    # nombre_archivo = f'./files/etiquetas-{register_name}.csv'
-
-    predicted_classes = [predicted_classes]
-    # Abrir el archivo en modo de escritura y escribir los datos
-    # with open(nombre_archivo, mode='w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerows(predicted_classes)
-    
     etiquetas = np.loadtxt(f'./files/etiquetas-{register_name}.dat').tolist()
-    json_data = {
-        "datos": X_new.tolist(),
-        "etiquetas": etiquetas
-    }
     
-    record = wfdb.rdrecord(os.path.join(app.config['UPLOAD_FOLDER'], '100'))
+    record = wfdb.rdrecord(os.path.join(app.config['UPLOAD_FOLDER'], register_name))
     total_samples = record.sig_len
     sampling_frequency = record.fs
-    data = record.p_signal.flatten().tolist()
-    
-    atr_file = os.path.join(app.config['UPLOAD_FOLDER'], '100.atr')
-    if os.path.exists(atr_file):
-        annotations = wfdb.rdann(os.path.join(app.config['UPLOAD_FOLDER'], '100'), 'atr')
-        arrythmia_labels = annotations.aux_note
-    else:
-        arrythmia_labels = [0] * total_samples  # Placeholder si no hay etiquetas
-
     arrhythmia_data = etiquetas
     segment_duration_seconds = 10
     segment_size = segment_duration_seconds * sampling_frequency
     num_segments = int(np.ceil(total_samples / segment_size))
     
     data = [elemento for fila in X_new for elemento in fila]
-    # Guardar el JSON en un archivo
-    # with open('datos.json', 'w') as f:
-    #     json.dump(json_data, f)
       
     response = {
         'total_samples': total_samples,
@@ -125,13 +111,11 @@ def fit():
         'segment_size': segment_size,
         'num_segments': num_segments,
         'data': data,
-        'arrhythmia': arrhythmia_data
+        'arrhythmia': arrhythmia_data,
     }
 
     return jsonify(response)  
     
-        
-    # return jsonify({"message": "Archivos recibidos", "data": json_data})
 
 
 @app.route('/normalizacion',methods=['POST'])
@@ -143,14 +127,38 @@ def normalizar():
     raw_data, id_events=llamado(filename)
     data_normal=normalizacion(raw_data)
     
-    np.savetxt(f'./files/Normalizacion-{filename}.dat',data_normal)
+    record = wfdb.rdrecord(os.path.join("files", filename))
+    total_samples = record.sig_len
+    sampling_frequency = record.fs
+    data = record.p_signal[:, 0].tolist()
+
+    segment_duration_seconds = 10
+    segment_size = segment_duration_seconds * sampling_frequency
+    num_segments = int(np.ceil(total_samples / segment_size))
+    
+    response = {
+        'total_samples': total_samples,
+        'sampling_frequency': sampling_frequency,
+        'segment_size': segment_size,
+        'num_segments': num_segments,
+        'data': data
+    }
+    
+    json_data = {
+        "response": response,
+        "data_normal": data_normal.tolist()
+    }
+    
+    # Guardar el JSON en un archivo
+    with open(f'./files/Normalizacion-{filename}.json', 'w') as f:
+        json.dump(json_data, f)
+      
     id_events = np.array([id_events])
     
     np.savetxt(f'./files/Eventos-{filename}.dat', id_events, fmt='%s')
-    name = f'Normalizacion-{filename}.dat'
+    name = f'Normalizacion-{filename}.json'
     eventos = f'Eventos-{filename}.dat'
-        
-    return jsonify({"fileName": name, "fileEvento":eventos}) 
+    return jsonify({"fileName": name, "fileEvento":eventos, "response": response}) 
 
 
 @app.route('/pqrs',methods=['POST'])
@@ -164,7 +172,24 @@ def pqrs():
     np.savetxt(f'./files/PQRS-{filename}.dat',pqrs)
     name = f'PQRS-{filename}.dat'
     
-    return jsonify({"fileName": name})  
+    record = wfdb.rdrecord(os.path.join("files", filename))
+    total_samples = record.sig_len
+    sampling_frequency = record.fs
+    data = record.p_signal[:, 0].tolist()
+
+    segment_duration_seconds = 10
+    segment_size = segment_duration_seconds * sampling_frequency
+    num_segments = int(np.ceil(total_samples / segment_size))
+    
+    response = {
+        'total_samples': total_samples,
+        'sampling_frequency': sampling_frequency,
+        'segment_size': segment_size,
+        'num_segments': num_segments,
+        'data': data
+    }
+    
+    return jsonify({"fileName": name, "response": response})  
 
 @app.route('/segmentacionMethod',methods=['POST'])
 def segmentacionMethod():
@@ -179,7 +204,12 @@ def segmentacionMethod():
     pqrs = upload_data(request.files['pqrs'])
     eventos = upload_data(request.files['eventos'])
     
-    normalizacion = np.loadtxt(f"./files/{normalizacion}.dat")
+    with open(f'./files/{normalizacion}.json', 'r') as f:
+        json_data = json.load(f)
+    
+    response = json_data['response']
+    normalizacion = json_data['data_normal']
+    
     id_events = np.loadtxt(f"./files/{eventos}.dat", dtype=str)
     
     pqrs = np.loadtxt(f"./files/{pqrs}.dat")
@@ -222,9 +252,19 @@ def segmentacionMethod():
     #se ajusta los segmentos de datos para que tengan la misma longitud
     dtsCom=ajusteDatos(dtsCom)
 
-    np.savetxt(f'./files/datos.dat',dtsCom)
+    # np.savetxt(f'./files/datos.dat',dtsCom)
     
-    return jsonify({"fileName": "datos.dat"})  
+    json_data = {
+        "response": response,
+        "datos": dtsCom
+    }
+    
+    # Guardar el JSON en un archivo
+    with open(f'./files/datos.json', 'w') as f:
+        json.dump(json_data, f)
+      
+    
+    return jsonify({"fileName": "datos.json"})  
 
 
 @app.route('/predictOnly',methods=['POST'])
@@ -232,10 +272,11 @@ def predictOnly():
 
     register_name = upload_data(request.files['file'])
     
-    X_new = np.loadtxt(f"./files/{register_name}.dat")
+    with open(f'./files/{register_name}.json', 'r') as f:
+        json_data = json.load(f)
     
-    segment_size = 100  # Tamaño de cada segmento
-    num_segments = len(X_new) // segment_size
+    response = json_data['response']
+    X_new = np.array(json_data['datos'])
     
     try:
         X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
@@ -251,25 +292,16 @@ def predictOnly():
     
     predicted_classes = np.argmax(predictions, axis=1)
     
-    json_data = {
-        "datos": X_new.tolist(),
-        "etiquetas": np.array(predicted_classes)
-    }
     np.savetxt(f'./files/etiquetas.dat',predicted_classes)
+    
+    
+    data = [elemento for fila in X_new for elemento in fila]
     
     predicted_classes = [predicted_classes]
     
     etiquetas = np.loadtxt(f'./files/etiquetas.dat').tolist()
-    json_data = {
-        "datos": X_new.tolist(),
-        "etiquetas": etiquetas
-    }
     
-    # Guardar el JSON en un archivo
-    with open('files/datos.json', 'w') as f:
-        json.dump(json_data, f)
-        
-    return jsonify({"fileName": "etiquetas.dat"})  
+    return jsonify({"fileName": "etiquetas.dat", "response":response, "arrhythmia": etiquetas, "data":data})  
 
 
 if __name__ == '__main__':

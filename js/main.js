@@ -514,3 +514,10 @@ function stopPlot() {
   clearInterval(intervalId);  // Detiene el intervalo
 }
 
+
+document.getElementById('btn_clean2').addEventListener('click', function () {
+  recargar();
+});
+document.getElementById('btn_clean3').addEventListener('click', function () {
+  recargar();
+});

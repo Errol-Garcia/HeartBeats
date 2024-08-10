@@ -89,7 +89,7 @@ body {
 }
 .ct-series-a .ct-line {
   /* stroke-width: 1px; */
-  stroke: black;
+  stroke: green;
 }
 .ct-series-b .ct-line {
   /* stroke-width: 1px; */

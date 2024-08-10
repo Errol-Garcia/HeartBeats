@@ -1,3 +1,19 @@
+
+let chart;
+let chartData = [];
+let arrhythmiaData = [];
+let currentIndex = 0;
+let interval;
+let segmentSize;
+let samplingFrequency;
+let totalSamples;
+let numSegments;
+let totalTime;
+let currentSegment = 1;
+let isPlaying = false;
+
+
+
 $(document).ready(function () {
 
     $('#sidebarCollapse').on('click', function () {
@@ -5,7 +21,7 @@ $(document).ready(function () {
     });
     
     var response1 = "";
-  
+
     $.validator.addMethod(
       "extensionFile1",
       function (value, element, params) {
@@ -127,15 +143,23 @@ $(document).ready(function () {
           data: formData,
           contentType: false,
           processData: false,
-          success: function (response) {
-            console.log(response.filename);
-            response1 = response;
+          success: function (data) {
+            console.log(data.filename);
+            response1 = data;
             enableBtnSubmit();
             $("#upload-area").empty();
-            fetchECGData(response['fileName'])
-              .then((data) => plotECG(data));
-          formContainer.classList.remove('hidden');
-  
+          //   fetchECGData(response['fileName'])
+          //     .then((data) => plotECG(data));
+            formContainer.classList.remove('hidden');
+
+            samplingFrequency = data.response.sampling_frequency;
+            segmentSize = Math.floor(samplingFrequency);
+            totalSamples = data.response.total_samples;
+            chartData = data.response.data;
+            numSegments = data.response.num_segments;
+            totalTime = totalSamples / samplingFrequency;
+            renderChart(chartData.slice(0, 2000));
+            updateProgress();
           },
           error: function (xhr, status, error) {
             $("#txtErrorUpload").removeClass('hidden');
@@ -277,3 +301,147 @@ $(document).ready(function () {
       text: "Los archivos cargados deben tener el mismo nombre",
     });
   }
+
+  
+function renderChart(data) {
+  const labels = Array.from({ length: data.length }, (_, i) => i / samplingFrequency);
+  chart = new Chartist.Line('.ct-chart', {
+      labels: labels,
+      series: [data]
+  }, {
+      fullWidth: true,
+      chartPadding: { right: 40 },
+      lineSmooth: false,
+      showPoint: false,
+      axisX: {
+          labelInterpolationFnc: function(value, index) {
+              return index % (samplingFrequency * 2) === 0 ? `${(value).toFixed(2)}s` : null;
+          }
+      }
+  });
+}
+
+function updateChart() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+      clearInterval(interval);
+      currentIndex = chartData.length - segmentSize;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+
+/*
+function renderChart(data) {
+  const labels = Array.from({ length: data.length }, (_, i) => i / samplingFrequency);
+  const series = [];
+
+  let currentSeries = [];
+  let currentClass = arrhythmiaData[0] === 1 ? 'ct-series-a' : 'ct-series-b';
+
+  for (let i = 0; i < data.length; i++) {
+    const arrhythmia = arrhythmiaData[Math.floor(i / segmentSize)];
+
+    // Determine the class based on arrhythmia status
+    const newClass = arrhythmia === 0 ? 'ct-series-a' : 'ct-series-b';
+
+    if (newClass !== currentClass) {
+      series.push({ value: currentSeries, className: currentClass });
+      currentSeries = [];
+      currentClass = newClass;
+    }
+
+    currentSeries.push(data[i]);
+  }
+
+  if (currentSeries.length > 0) {
+    series.push({ value: currentSeries, className: currentClass });
+  }
+
+  new Chartist.Line('.ct-chart', {
+    labels: labels.slice(0, series.flat().length),
+    series: series.map(s => s.value)
+  }, {
+    fullWidth: true,
+    chartPadding: { right: 40 },
+    lineSmooth: false,
+    showPoint: false,
+    series: series.reduce((acc, s, i) => {
+      acc[`ct-series-${i}`] = { className: s.className };
+      return acc;
+    }, {}),
+    axisX: {
+      labelInterpolationFnc: function(value, index) {
+        //return index % (samplingFrequency * 2) === 0 ? `${(value).toFixed(2)}s` : null;
+          // Cambia este valor para ajustar la frecuencia de las etiquetas
+          const labelFrequency = samplingFrequency / 2; // Aumentar para menos etiquetas, reducir para más
+          if (typeof value === 'number') {
+            return index % labelFrequency === 0 ? `${value.toFixed(2)}s` : null;
+          }
+          return null;
+        
+      }
+    }
+  });
+}
+
+function updateChart() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+    clearInterval(interval);
+    currentIndex = chartData.length - segmentSize;
+  }
+  const dataSegment = chartData.slice(currentIndex, currentIndex + segmentSize);
+  const arrhythmiaSegment = arrhythmiaData.slice(Math.floor(currentIndex / segmentSize), Math.floor(currentIndex / segmentSize) + Math.ceil(dataSegment.length / segmentSize));
+  renderChart(dataSegment, arrhythmiaSegment);
+  updateProgress();
+}
+*/
+function updateProgress() {
+  const progressBar = document.getElementById('progress-bar');
+  const progressTime = document.getElementById('progress-time');
+  const progress = (currentIndex / totalSamples) * 100;
+  progressBar.value = progress;
+
+  const currentTime = currentIndex / samplingFrequency;
+  progressTime.textContent = `${formatTime(currentTime)}/${formatTime(totalTime)}`;
+
+ }
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function play() {
+  if (!isPlaying) {
+      isPlaying = true;
+      clearInterval(interval);
+      interval = setInterval(updateChart, 1000);
+  }
+}
+
+function pause() {
+  isPlaying = false;
+  clearInterval(interval);
+}
+
+function forward() {
+  currentIndex += segmentSize;
+  if (currentIndex >= chartData.length) {
+      currentIndex = chartData.length - segmentSize;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+
+function backward() {
+  currentIndex -= segmentSize;
+  if (currentIndex < 0) {
+      currentIndex = 0;
+  }
+  renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+  updateProgress();
+}
+

@@ -11,6 +11,7 @@
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
 
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/styleMenu.css">
@@ -91,10 +92,10 @@
       </header>
 
       <main>
-        <div class="container d-flex flex-column justify-content-center align-items-center mt-2 h-100">
-          <div class="row d-flex flex-column justify-content-center align-items-center w-100">
-            <div class="col-12 row d-flex flex-column justify-content-center align-items-center">
-              <div class="card w-75 mb-3 shadow p-3 bg-body-tertiary rounded">
+        <div class="container d-flex flex-column justify-content-center align-items-center h-100" style="width: 100%;">
+          <div class="row d-flex flex-column justify-content-center align-items-center w-100" style="width: 100%;">
+            <div class="col-12 row d-flex flex-column justify-content-center align-items-center" style="width: 150%;">
+              <div class="card  mb-3 shadow p-3 bg-body-tertiary rounded" style="width: 100%;">
                 <div class="card-body">
                   <div class="upload-area">
                     <form id="form_upload_arrhythmia_pqrs" action="#" method="post" novalidate="novalidate">
@@ -151,6 +152,26 @@
                       </div>
                     </div>
                   </div>
+                  <div class="predict-area hidden" id="view-area">
+                    <br>
+                    <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Visualizaci&oacuten ECG Ritmo Cardiaco</h3>
+                    <div class="col-lg-12 text-center mb-2">
+                      <div class="ct-chart"></div>
+                      <br>
+                      <br>
+                      <br>
+                      <div class="controls">
+                        <button id="play-button" onclick="play()">Play</button>
+                        <button onclick="pause()">Pause</button>
+                        <button onclick="forward()">Forward</button>
+                        <button onclick="backward()">Backward</button>
+                        <div id="progress-container">
+                          <progress id="progress-bar" value="0" max="100"></progress>
+                          <span id="progress-time">00:00/00:00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -191,6 +212,7 @@
 
   <script src="../js/pqrs.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://code.highcharts.com/highcharts.js"></script>
 
