@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Predicción de arritmias cardíacas | Segmentar</title>
+    <title>Predicción de arritmias cardíacas | QRS</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -65,13 +65,13 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="qrs.html" class="sidebar-link">
+                            <a href="qrs.html" class="sidebar-link active">
                                 <i class="fa-solid fa-heart-pulse"></i>
                                 QRS
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="segmentacion.html" class="sidebar-link active">
+                            <a href="segmentacion.html" class="sidebar-link">
                                 <i class="fa-solid fa-file-waveform"></i>
                                 Segmentar
                             </a>
@@ -101,30 +101,30 @@
                             <form id="form_upload_files" action="#" method="post" novalidate="novalidate">
                                 <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
 
-                                <!-- Registro (.norx) -->
+                                <!-- Registro (.hea) -->
                                 <div class="col-lg-12 mb-2">
-                                    <label for="norxFile" class="col-form-label">Registro normalizado (.norx)</label>
+                                    <label for="heaFile" class="col-form-label">Registro (.hea)</label>
                                     <div class="custom-file">
-                                        <input type="file" class="form-control" name="norxFile"
-                                            id="norxFile" accept=".norx" placeholder="Selecciona un archivo" required>
+                                        <input type="file" class="form-control" name="heaFile"
+                                            id="heaFile" accept=".hea" placeholder="Selecciona un archivo" required>
                                     </div>
                                 </div>
 
-                                <!-- Registro (.evtx) -->
+                                <!-- Registro (.dat) -->
                                 <div class="col-lg-12 mb-2">
-                                    <label for="evtxFile" class="col-form-label">Registro de eventos (.evtx)</label>
+                                    <label for="datFile" class="col-form-label">Registro (.dat)</label>
                                     <div class="custom-file">
-                                        <input type="file" class="form-control" name="evtxFile"
-                                            id="evtxFile" accept=".evtx" placeholder="Selecciona un archivo" required>
+                                        <input type="file" class="form-control" name="datFile"
+                                            id="datFile" accept=".dat" placeholder="Selecciona un archivo" required>
                                     </div>
                                 </div>
 
-                                <!-- Registro (.qrsx) -->
+                                <!-- Registro (.atr) -->
                                 <div class="col-lg-12 mb-2">
-                                    <label for="qrsxFile" class="col-form-label">Registro QRS (.qrsx)</label>
+                                    <label for="atrFile" class="col-form-label">Registro (.atr)</label>
                                     <div class="custom-file">
-                                        <input type="file" class="form-control" name="qrsxFile"
-                                            id="qrsxFile" accept=".qrsx" placeholder="Selecciona un archivo" required>
+                                        <input type="file" class="form-control" name="atrFile"
+                                            id="atrFile" accept=".atr" placeholder="Selecciona un archivo" required>
                                     </div>
                                 </div>
 
@@ -157,7 +157,7 @@
     </div>
 
     <template id="template_graph_area">
-        <form id="form_segment" action="#" method="post" novalidate="novalidate">
+        <form id="form_qrs" action="#" method="post" novalidate="novalidate">
             <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
             <div id="ecg-chart" class="col-lg-12 text-center mb-2">
                 <div class="ct-chart"></div>
@@ -179,14 +179,14 @@
                 <button type="button" id="btn_forward" class="controls btn btn-dark mb-2">
                     <i class="fa-solid fa-forward"></i>
                 </button>
-                <button type="submit" id="btn_segment" class="btn btn-dark ms-auto">
-                    <i class="fa-solid fa-file-waveform"></i> Segmentar
+                <button type="submit" id="btn_qrs" class="btn btn-dark ms-auto">
+                    <i class="fa-solid fa-heart-pulse"></i> Obtener QRS
                 </button>
             </div>
             <div class="col-lg-12 text-center g-2">
-                <button type="button" id="btn_download_segment" class="download btn btn-primary d-none"><i
+                <button type="button" id="btn_download_qrs" class="download btn btn-primary d-none"><i
                         class="fa-solid fa-download"></i>
-                    Segmentacion</button>
+                    QRS</button>
             </div>
         </form>
     </template>
@@ -212,7 +212,7 @@
 
     <script src="../js/spinner.js"></script>
 
-    <script src="../js/segmentacion.js"></script>
+    <script src="../js/qrs.js"></script>
 </body>
 
 </html>

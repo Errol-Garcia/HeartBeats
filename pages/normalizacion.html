@@ -2,239 +2,221 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Predicción de arritmias cardíacas</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Predicción de arritmias cardíacas | Normalizacion</title>
 
-  <link rel="stylesheet" href="../css/adminlte.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/adminlte.min.css">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/styleMenu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist/dist/chartist.min.css">
+
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
-  <div id="loader">
-    <div class="spinner-border text-primary" role="status">
-      <span class="sr-only">Cargando...</span>
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Cargando...</span>
+        </div>
     </div>
-  </div>
 
-  <div class="wrapper">
-    <!-- Sidebar -->
-    <nav id="sidebar" class="bg-dark">
-      <div class="sidebar-header">
-        <h3>Menú</h3>
-      </div>
-
-      <ul class="list-unstyled components">
-        <li class="active">
-          <a href="./normalizacion.html">
-            <i class="fas fa-home"></i>
-            Normalizar
-          </a>
-        </li>
-        <li>
-          <a href="./pqrs.html">
-            <i class="fa-regular fa-heart"></i>
-            PQRS
-          </a>
-        </li>
-        <li>
-          <a href="./segmentacion.html">
-            <i class="fa-solid fa-file-waveform"></i>
-            Segmentación
-          </a>
-        </li>
-        <li>
-          <a href="./predecir.html">
-            <i class="fas fa-solid fa-brain"></i>
-            Predecir
-          </a>
-        </li>
-        <li>
-          <a href="./viewECG.html">
-            <i class="fa-solid fa-wave-square"></i>
-            ver
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Page Content -->
-    <div id="content">
-      <header>
-        <nav class="navbar navbar-expand-lg bg-dark border-bottom border-body" data-bs-theme="dark">
-          <div class="container-fluid">
-            <button type="button" id="sidebarCollapse" class="btn btn-info">
-              <i class="fas fa-align-left"></i>
-              <span>Menu</span>
-            </button>
-            <a class="navbar-brand" style="margin-left: 10px;"><i class="fa-solid fa-heart-pulse text-danger"></i>
-              Healthy Heart AI</a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="../index.html"><i class="fa-solid fa-house"></i>
-                    Inicio</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-      <main>
-        <div class="container d-flex flex-column justify-content-center align-items-center h-100" style="width: 100%;">
-          <div class="row d-flex flex-column justify-content-center align-items-center w-100" style="width: 100%;">
-            <div class="col-12 row d-flex flex-column justify-content-center align-items-center" style="width: 150%;">
-              <div class="card mb-3 shadow p-3 bg-body-tertiary rounded" style="width: 100%;">
-                <div class="card-body">
-                  <div class="upload-area">
-                    <form id="form_upload_arrhythmia_normalizacion" action="#" method="post" novalidate="novalidate">
-                      <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
-                      <!-- Registro (.atr) -->
-                      <div class="col-lg-12 mb-2">
-                        <label for="fileInput1" class="col-form-label">Registro (.atr)</label>
-                        <div class="custom-file">
-                          <input type="file" accept=".atr" class="form-control " name="fileInput1" id="fileInput1"
-                            placeholder="Selecciona un archivo" required>
-                          <!-- <label class="custom-file-label" for="fileInput1">Seleccionar</label> -->
-                        </div>
-                      </div>
-
-                      <!-- Registro (.hea) -->
-                      <div class="col-lg-12 mb-2">
-                        <label for="fileInput2" class="col-form-label">Registro (.hea)</label>
-                        <div class="custom-file">
-                          <input type="file" accept=".hea" class="form-control " name="fileInput2" id="fileInput2"
-                            placeholder="Selecciona un archivo" required>
-                          <!-- <label class="custom-file-label" for="fileInput2">Seleccionar</label> -->
-                        </div>
-                      </div>
-
-                      <!-- Registro (.dat) -->
-                      <div class="col-lg-12 mb-2">
-                        <label for="fileInput3" class="col-form-label">Registro (.dat)</label>
-                        <div class="custom-file">
-                          <input type="file" accept=".dat" class="form-control " name="fileInput3" id="fileInput3"
-                            placeholder="Selecciona un archivo" required>
-                          <!-- <label class="custom-file-label" for="fileInput3">Seleccionar</label> -->
-                        </div>
-                      </div>
-
-                      <!-- Mensaje error -->
-                      <div class="col-lg-12 mb-2 hidden" id="txtErrorUpload">
-                        <label class="col-form-label" style="color: red;">Hubo un error en el servidor</label>
-                      </div>
-
-                      <div class="col-lg-12 text-end g-2">
-                        <button type="submit" id="btn_submit" class="btn btn-dark"><i class="fa-solid fa-upload"></i>
-                          Cargar</button>
-                        <div id="btn_clean" class="btn btn-danger d-none"><i class="fa-solid fa-eraser"></i>
-                          Limpiar</div>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="container my-4 hidden" id="normalizacion-container">
-                    <div class="row">
-                      <div class="col text-center" id="normalizacion-button">
-                        <button id="download-btn" class="btn btn-primary">
-                          Descargar Normalización
-                        </button>
-                      </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                      <div class="col text-center" id="event-button">
-                        <button id="download-btn-event" class="btn btn-primary">
-                          Descargar eventos
-                        </button>
-                      </div>
-                    </div>
-                    <div class="predict-area hidden" id="view-area">
-                      <br>
-                      <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Visualizaci&oacuten ECG Ritmo Cardiaco</h3>
-                      <div class="col-lg-12 text-center mb-2">
-                        <div class="ct-chart"></div>
-                        <br>
-                        <br>
-                        <br>
-                        <div class="controls">
-                          <button id="play-button" onclick="play()">Play</button>
-                          <button onclick="pause()">Pause</button>
-                          <button onclick="forward()">Forward</button>
-                          <button onclick="backward()">Backward</button>
-                          <div id="progress-container">
-                            <progress id="progress-bar" value="0" max="100"></progress>
-                            <span id="progress-time">00:00/00:00</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+    <div class="wrapper">
+        <aside id="sidebar" class="bg-dark expand" data-bs-theme="dark">
+            <div class="d-flex">
+                <button class="toggle-btn" type="button">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="sidebar-logo">
+                    <a class="logo-link" href="../index.html">Healthy Heart</a>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </main>
+            <ul class="sidebar-nav">
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#black-box" aria-expanded="false" aria-controls="black-box">
+                        <i class="fa-solid fa-box text-secondary"></i>
+                        <span>Caja negra</span>
+                    </a>
+                    <ul id="black-box" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="../index.html" class="sidebar-link">
+                                <i class="fa-solid fa-star text-warning-emphasis"></i>
+                                Completo
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#white-box" aria-expanded="true" aria-controls="white-box">
+                        <i class="fa-solid fa-box"></i>
+                        <span>Caja blanca</span>
+                    </a>
+                    <ul id="white-box" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="normalizacion.html" class="sidebar-link active">
+                                <i class="fa-solid fa-ruler"></i>
+                                Normalizar
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="qrs.html" class="sidebar-link">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                QRS
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="segmentacion.html" class="sidebar-link">
+                                <i class="fa-solid fa-file-waveform"></i>
+                                Segmentar
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="prediccion.html" class="sidebar-link">
+                                <i class="fas fa-solid fa-brain"></i>
+                                Predecir
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="graficar.html" class="sidebar-link">
+                                <i class="fa-solid fa-wave-square"></i>
+                                Graficar
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </aside>
 
-      <footer class="sticky-footer bg-white">
-        <div class="container my-auto">
-          <div class="copyright text-center my-auto">
-            <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
-          </div>
+        <div class="container-content">
+            <main class="d-flex flex-column justify-content-center align-items-center">
+                <div class="card w-100 shadow p-3 bg-body-tertiary rounded">
+                    <div class="card-body">
+                        <div class="upload-area">
+                            <form id="form_upload_files" action="#" method="post" novalidate="novalidate">
+                                <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
+
+                                <!-- Registro (.hea) -->
+                                <div class="col-lg-12 mb-2">
+                                    <label for="heaFile" class="col-form-label">Registro (.hea)</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" name="heaFile"
+                                            id="heaFile" accept=".hea" placeholder="Selecciona un archivo" required>
+                                    </div>
+                                </div>
+
+                                <!-- Registro (.dat) -->
+                                <div class="col-lg-12 mb-2">
+                                    <label for="datFile" class="col-form-label">Registro (.dat)</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" name="datFile"
+                                            id="datFile" accept=".dat" placeholder="Selecciona un archivo" required>
+                                    </div>
+                                </div>
+
+                                <!-- Registro (.atr) -->
+                                <div class="col-lg-12 mb-2">
+                                    <label for="atrFile" class="col-form-label">Registro (.atr)</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" name="atrFile"
+                                            id="atrFile" accept=".atr" placeholder="Selecciona un archivo" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12 text-end g-2 mb-3">
+                                    <button type="submit" id="btn_upload" class="btn btn-dark"><i
+                                            class="fa-solid fa-upload"></i>
+                                        Cargar</button>
+
+                                    <button type="button" id="btn_clean" class="clean btn btn-danger d-none"><i
+                                            class="fa-solid fa-eraser"></i>
+                                        Limpiar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="graph-area">
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; <a href="http://www.udenar.edu.co">Universidad de Nariño</a> 2024</span>
+                    </div>
+                </div>
+            </footer>
         </div>
-      </footer>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <template id="template_graph_area">
+        <form id="form_normalize" action="#" method="post" novalidate="novalidate">
+            <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+            <div id="ecg-chart" class="col-lg-12 text-center mb-2">
+                <div class="ct-chart"></div>
+            </div>
+            <div class="col-lg-12 mb-2 d-flex align-items-center justify-content-between">
+                <div class="progress flex-grow-1" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100">
+                    <div id="progress_bar" class="progress-bar" style="width: 0%"></div>
+                </div>
+                <span id="progress_time" class="ms-3">00:00/00:00</span>
+            </div>
+            <div class="col-lg-12 d-flex flex-wrap justify-content-center justify-content-lg-start mb-2">
+                <button type="button" id="btn_backward" class="controls btn btn-dark me-2 mb-2">
+                    <i class="fa-solid fa-backward"></i>
+                </button>
+                <button type="button" id="btn_play" class="controls btn btn-dark me-2 mb-2">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button type="button" id="btn_forward" class="controls btn btn-dark mb-2">
+                    <i class="fa-solid fa-forward"></i>
+                </button>
+                <button type="submit" id="btn_normalize" class="btn btn-dark ms-auto">
+                    <i class="fa-solid fa-ruler"></i> Normalizar
+                </button>
+            </div>
+            <div class="col-lg-12 text-center g-2">
+                <button type="button" id="btn_download_normalization" class="download btn btn-primary d-none"><i
+                        class="fa-solid fa-download"></i>
+                    Normalización</button>
 
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
-    integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+                <button type="button" id="btn_download_event" class="download btn btn-primary d-none"><i
+                        class="fa-solid fa-download"></i>
+                    Eventos</button>
+            </div>
+        </form>
+    </template>
 
-  <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/js/adminlte.min.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+        </script>
 
-  <script src="../js/spinner.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.0/dist/jquery.validate.js"></script>
 
-  <script src="../js/bs-custom-file-input.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script src="../js/normalizacion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist/dist/chartist.min.js"></script>
 
-  <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="../js/spinner.js"></script>
 
-  <script>
-    $(document).ready(function () {
-      $('#sidebarCollapse').on('click', function () {
-        $('#sidebar').toggleClass('active');
-      });
-    });
-  </script>
+    <script src="../js/normalizacion.js"></script>
 </body>
 
 </html>

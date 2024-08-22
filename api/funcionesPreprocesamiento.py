@@ -5,7 +5,6 @@ import heartpy as hp
 import statistics as stats
 import numpy as np
 
-
 # Funcion para llamar los registros
 def llamado(registr):
     registro = f'./files/{registr}'
@@ -16,11 +15,10 @@ def llamado(registr):
     record=wfdb.rdrecord(registro,sampto=size)
     annotation = wfdb.rdann(registro,'atr',sampto=size)
 
-    id_events=annotation.symbol
-    raw_data=record.p_signal
+    id_events=annotation.symbol#etiquetas
+    raw_data=record.p_signal#datos sin procesar
 
     return raw_data,id_events
-
 
 def filtro(s):
     datosF=[]
@@ -30,7 +28,6 @@ def filtro(s):
         datosF.append(filtered4.tolist())
     return datosF
 
-
 # Funcion para normalizar la señal
 def normalizacion(data):
     data_normal=preprocessing.normalize(data, norm='l2')
@@ -38,12 +35,12 @@ def normalizacion(data):
 
 # Funcion para detectar el segmento QRS
 def detectorQRS(registr):
-    
     registro = f'./files/{registr}'
     record = wfdb.rdrecord(registro, channels=[0], physical=False)
     qrs_locs = processing.gqrs_detect(d_sig=record.d_signal[:,0], fs=record.fs, adc_gain=record.adc_gain[0], adc_zero=record.adc_zero[0])
-
-    return qrs_locs
+    fs=record.fs
+    
+    return qrs_locs,fs
 
 # Funcion para segmentar la señal, haciendo de los indices obtenidos del detectoe QRS
 def segmentacion(data_normal, qrs_locs):
