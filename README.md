@@ -85,7 +85,7 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes y h
 * Sistema Operativo: Windows (versión recomendada: 10 o superior)
 * Lenguaje de Programación: Python (última versión)
 * Control de Versiones: Git
-* Servidor Apache: XAMPP o WAMP
+* Servidor Apache: XAMPP o WampServer
 
 ### Instalación 🔧
 
@@ -93,7 +93,7 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes y h
    ```sh
    git clone https://github.com/Errol-Garcia/healthy-heart.git
    ```
-2. Navega al directorio del proyecto `api`
+2. Navega al directorio `api`
    ```sh
    cd api
    ```
@@ -112,11 +112,15 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes y h
 
 ### Ejecución ⏯️
 
-1. Activa el entorno virtual
+1. Navega al directorio `api`
+   ```sh
+   cd api
+   ```
+2. Activa el entorno virtual
    ```sh
    .\env\Scripts\activate
    ```
-2. Ejecuta la aplicación
+3. Ejecuta la aplicación
    ```sh
    python app.py
    ```
@@ -126,11 +130,11 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes y h
 
 
 <!-- AUTHOR -->
-### Autores ✒️
+## Autores ✒️
 
-- **Errol Vladimir García Silva** - _Trabajo inicial_ - [Errol-Garcia](https://github.com/Errol-Garcia)
+- **Errol Vladimir García Silva** - [Errol-Garcia](https://github.com/Errol-Garcia)
 
-- **Jhon Favio España Cortes** - _Trabajo inicial_ - [JhonFabioEC](https://github.com/JhonFabioEC)
+- **Jhon Favio España Cortes** - [JhonFabioEC](https://github.com/JhonFabioEC)
 
 <p align="right">(<a href="#readme-top">Principio de página</a>)</p>
 
@@ -152,8 +156,6 @@ Este proyecto está bajo la Licencia MIT - ve el archivo `LICENSE` para detalles
 Errol Vladimir García Silva - [@errol-silva](https://www.linkedin.com/in/errol-silva-811289258/) - errolgsilva@gmail.com
 
 Jhon Favio España Cortes - [@jhonydev404](https://www.linkedin.com/in/jhonydev404/) - jhonnycan212@gmail.com
-
-Link del proyecto: [https://github.com/Errol-Garcia/healthy-heart](https://github.com/Errol-Garcia/healthy-heart)
 
 <p align="right">(<a href="#readme-top">Principio de página</a>)</p>
 
