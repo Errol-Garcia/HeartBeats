@@ -62,7 +62,9 @@ def ecg_signal(filename):
 def predict(filename):
     _, _ = preprocesamiento.inicio(filename)
 
-    X_new = np.loadtxt(os.path.join(app.config['UPLOAD_FOLDER'], f"/datos-{filename}.dat"))
+    print(f"filename: {filename}")
+
+    X_new = np.loadtxt(os.path.join(app.config['UPLOAD_FOLDER'], f"datos-{filename}.dat"))
     
     try:
         X_newShape = X_new.reshape((X_new.shape[0], X_new.shape[1], 1))
@@ -77,9 +79,9 @@ def predict(filename):
     
     predicted_classes = np.argmax(predictions, axis=1)
     
-    np.savetxt(os.path.join(app.config['UPLOAD_FOLDER'], f'/etiquetas-{filename}.dat'), predicted_classes)
+    np.savetxt(os.path.join(app.config['UPLOAD_FOLDER'], f'etiquetas-{filename}.dat'), predicted_classes)
 
-    etiquetas = np.loadtxt(os.path.join(app.config['UPLOAD_FOLDER'], f'/etiquetas-{filename}.dat')).tolist()
+    etiquetas = np.loadtxt(os.path.join(app.config['UPLOAD_FOLDER'], f'etiquetas-{filename}.dat')).tolist()
 
     ecg_signal = X_new.flatten().tolist()
 

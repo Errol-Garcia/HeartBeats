@@ -76,14 +76,14 @@ main {
     margin: auto 0;
 }
 
-.sidebar-logo a {
-    color: #FFF;
-    font-size: 1.15rem;
-    font-weight: 600;
+.sidebar-logo a img {
+    width: 164px;
+    height: 50px;
 }
 
 #sidebar:not(.expand) .sidebar-logo,
 #sidebar:not(.expand) a.sidebar-link span {
+    transition: all 1s ease-in-out;
     display: none;
 }
 
@@ -221,7 +221,7 @@ body {
 
 .ct-series-a .ct-line {
     stroke: #000;
-    stroke-width: 2px;
+    stroke-width: 1.5px;
 }
 .ct-series-a .ct-point {
     display: none;

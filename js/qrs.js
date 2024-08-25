@@ -54,12 +54,14 @@ function initializeFormValidation() {
 async function handleFileUpload(e) {
     e.preventDefault();
 
+    const formData = new FormData(this);
+	if (appendFilesToFormData(formData) === false) {
+		return;
+	}
+
     toggleLoadingState("#btn_upload", true, "Cargando...", null);
     disableButton(".btn", true);
     disableButton(".form-control", true);
-
-    const formData = new FormData(this);
-    appendFilesToFormData(formData);
 
     var isDisabled = false;
 
@@ -91,26 +93,46 @@ async function handleFileUpload(e) {
 async function handleQRS(e) {
     e.preventDefault();
 
-    resetForm();
+    isPlaying = true;
+    togglePlayPause();
     toggleLoadingState("#btn_qrs", true, "Obteniendo...", null);
     disableButton(".btn", true);
+    
+	var isDisabled = false;
 
-    const data = await fetchQRSData(filename[0]);
-    const qrs = data.qrs;
+	try {
+        const data = await fetchQRSData(filename[0]);
+        const qrs = data.qrs;
+    
+        setupDownloadLinks('#btn_download_qrs', qrs);   
+        showButton(".download", true);
+		resetGraph();
+		isDisabled = true;
 
-    setupDownloadLinks('#btn_download_qrs', qrs);
-    scrollToBottom();
-    toggleLoadingState("#btn_qrs", false, "Obtener QRS", "fa-heart-pulse");
-    disableButton(".btn", false);
-    disableButton("#btn_upload", true);
-    disableButton("#btn_qrs", true);
-    showButton(".download", true);
+		scrollToBottom();
+	} catch (error) {
+		console.error("Error al obtener qrs: ", error);
+		isDisabled = false;
+	} finally {
+		disableButton(".btn", false);
+		disableButton("#btn_upload", isDisabled);
+		disableButton("#btn_qrs", isDisabled);
+		toggleLoadingState("#btn_qrs", false, "Obtener QRS", "fa-heart-pulse");
+	}
 }
 
 function appendFilesToFormData(formData) {
-    formData.append("heaFile", $("#heaFile")[0].files[0]);
-    formData.append("datFile", $("#datFile")[0].files[0]);
-    formData.append("atrFile", $("#atrFile")[0].files[0]);
+	heaFile = $("#heaFile")[0].files[0];
+	datFile = $("#datFile")[0].files[0];
+	atrFile = $("#atrFile")[0].files[0];
+
+	if (!heaFile || !datFile || !atrFile) {
+        return false;
+    }
+
+	formData.append("heaFile", heaFile);
+	formData.append("datFile", datFile);
+	formData.append("atrFile", atrFile);
 }
 
 async function uploadFiles(formData) {
@@ -177,7 +199,7 @@ function setupControlButtons() {
 
 function initializeChart() {
     setTimeout(() => {
-        renderChart(chartData.slice(0, 1000));
+        renderChart(chartData.slice(0, 2000));
         updateProgress();
     }, 0);
 }
@@ -205,7 +227,7 @@ function updateChart() {
         clearInterval(interval);
         currentIndex = chartData.length - segmentSize;
     }
-    renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+    renderChart(chartData.slice(currentIndex, currentIndex + 2000));
     updateProgress();
 }
 
@@ -228,7 +250,7 @@ function forward() {
     if (currentIndex >= chartData.length) {
         currentIndex = chartData.length - segmentSize;
     }
-    renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+    renderChart(chartData.slice(currentIndex, currentIndex + 2000));
     updateProgress();
 }
 
@@ -240,7 +262,7 @@ function backward() {
     if (currentIndex < 0) {
         currentIndex = 0;
     }
-    renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+    renderChart(chartData.slice(currentIndex, currentIndex + 2000));
     updateProgress();
 }
 
@@ -290,21 +312,26 @@ function toggleLoadingState(id, isLoading, text, icon) {
 }
 
 function clean() {
-    $(".graph-area").empty();
-    $("#form_upload_files")[0].reset();
-    disableButton(".btn", false);
-    disableButton(".form-control", false);
-    showButton("#btn_clean", false);
+	resetForm();
+	$(".graph-area").empty();
+	$("#form_upload_files")[0].reset();
+	disableButton(".btn", false);
+	disableButton(".form-control", false);
+	showButton("#btn_clean", false);
+}
 
-    resetForm();
-    chartData = [];
+function resetGraph() {
+	renderChart(chartData.slice(0, 2000));
+	$('#progress_bar').css('width', 0);
+	$('#progress_bar').attr('aria-valuenow', 0);
+	$("#progress_time").text(`00:00/${formatTime(totalTime)}`);
+	currentIndex = 0;
 }
 
 function resetForm() {
-    isPlaying = false;
-    $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-    clearInterval(interval);
+	togglePlayPause();
     chart;
+    chartData = [];
     currentIndex = 0;
     interval;
     segmentSize;

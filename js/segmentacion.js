@@ -41,12 +41,14 @@ function initializeFormValidation() {
 async function handleFileUpload(e) {
 	e.preventDefault();
 
+	const formData = new FormData(this);
+	if (appendFilesToFormData(formData) === false) {
+		return;
+	}
+
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
 	disableButton(".form-control", true);
-
-	const formData = new FormData(this);
-	appendFilesToFormData(formData);
 
 	let isDisabled = false;
 
@@ -78,26 +80,52 @@ async function handleFileUpload(e) {
 async function handleSegment(e) {
 	e.preventDefault();
 
-    resetForm();
+	isPlaying = true;
+    togglePlayPause();
 	toggleLoadingState("#btn_segment", true, "Segmentando...", null);
 	disableButton(".btn", true);
 
-    const data = await fetchSegmentData(filename);
-    const segment = data.segmentation;
+	var isDisabled = false;
 
-    setupDownloadLinks('#btn_download_segment', segment);
-    scrollToBottom();
-	toggleLoadingState("#btn_segment", false, "Segmentar", "fa-heart-pulse");
-	disableButton(".btn", false);
-	disableButton("#btn_upload", true);
-	disableButton("#btn_segment", true);
-    showButton(".download", true);
+	try {
+		const data = await fetchSegmentData(filename);
+		const segment = data.segmentation;
+	
+		setupDownloadLinks('#btn_download_segment', segment);
+		showButton(".download", true);
+		resetGraph();
+		isDisabled = true;
+
+		scrollToBottom();
+	} catch (error) {
+		console.error("Error al segmentar: ", error);
+		isDisabled = false;
+	} finally {
+		disableButton(".btn", false);
+		disableButton("#btn_upload", isDisabled);
+		disableButton("#btn_segment", isDisabled);
+		toggleLoadingState("#btn_segment", false, "Segmentar", "fa-heart-pulse");
+	}
 }
 
 function appendFilesToFormData(formData) {
 	formData.append("norxFile", $("#norxFile")[0].files[0]);
 	formData.append("evtxFile", $("#evtxFile")[0].files[0]);
 	formData.append("qrsxFile", $("#qrsxFile")[0].files[0]);
+}
+
+function appendFilesToFormData(formData) {
+	norxFile = $("#norxFile")[0].files[0];
+	evtxFile = $("#evtxFile")[0].files[0];
+	qrsxFile = $("#qrsxFile")[0].files[0];
+
+	if (!norxFile || !evtxFile || !qrsxFile) {
+        return false;
+    }
+
+	formData.append("norxFile", norxFile);
+	formData.append("evtxFile", evtxFile);
+	formData.append("qrsxFile", qrsxFile);
 }
 
 async function uploadFiles(formData) {
@@ -164,7 +192,7 @@ function setupControlButtons() {
 
 function initializeChart() {
     setTimeout(() => {
-        renderChart(chartData.slice(0, 1000));
+        renderChart(chartData.slice(0, 2000));
         updateProgress();
     }, 0);
 }
@@ -192,7 +220,7 @@ function updateChart() {
 		clearInterval(interval);
 		currentIndex = chartData.length - segmentSize;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -215,7 +243,7 @@ function forward() {
 	if (currentIndex >= chartData.length) {
 		currentIndex = chartData.length - segmentSize;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -227,7 +255,7 @@ function backward() {
 	if (currentIndex < 0) {
 		currentIndex = 0;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -277,21 +305,26 @@ function toggleLoadingState(id, isLoading, text, icon) {
 }
 
 function clean() {
+	resetForm();
 	$(".graph-area").empty();
 	$("#form_upload_files")[0].reset();
 	disableButton(".btn", false);
 	disableButton(".form-control", false);
 	showButton("#btn_clean", false);
+}
 
-	resetForm();
-    chartData = [];
+function resetGraph() {
+	renderChart(chartData.slice(0, 2000));
+	$('#progress_bar').css('width', 0);
+	$('#progress_bar').attr('aria-valuenow', 0);
+	$("#progress_time").text(`00:00/${formatTime(totalTime)}`);
+	currentIndex = 0;
 }
 
 function resetForm() {
-	isPlaying = false;
-	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-	clearInterval(interval);
+	togglePlayPause();
     chart;
+	chartData = [];
     currentIndex = 0;
     interval;
     segmentSize;

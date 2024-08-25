@@ -40,12 +40,14 @@ function initializeFormValidation() {
 async function handleFileUpload(e) {
 	e.preventDefault();
 
+	const formData = new FormData(this);
+	if (appendFilesToFormData(formData) === false) {
+		return;
+	}
+
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
 	disableButton(".form-control", true);
-
-	const formData = new FormData(this);
-	appendFilesToFormData(formData);
 
 	var isDisabled = false;
 
@@ -74,8 +76,15 @@ async function handleFileUpload(e) {
 }
 
 function appendFilesToFormData(formData) {
-	formData.append("segxFile", $("#segxFile")[0].files[0]);
-	formData.append("prdxFile", $("#prdxFile")[0].files[0]);
+	const segxFile = $("#segxFile")[0].files[0];
+    const prdxFile = $("#prdxFile")[0].files[0];
+
+	if (!segxFile || !prdxFile) {
+        return false;
+    }
+
+	formData.append("segxFile", segxFile);
+	formData.append("prdxFile", prdxFile);
 }
 
 async function uploadFiles(formData) {
@@ -118,7 +127,7 @@ function setupControlButtons() {
 
 function initializeChart() {
     setTimeout(() => {
-        renderChart(chartData.slice(0, 1000));
+        renderChart(chartData.slice(0, 2000));
         updateProgress();
     }, 0);
 }
@@ -146,7 +155,7 @@ function updateChart() {
 		clearInterval(interval);
 		currentIndex = chartData.length - segmentSize;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -169,7 +178,7 @@ function forward() {
 	if (currentIndex >= chartData.length) {
 		currentIndex = chartData.length - segmentSize;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -181,7 +190,7 @@ function backward() {
 	if (currentIndex < 0) {
 		currentIndex = 0;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 1000));
+	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
 
@@ -245,22 +254,18 @@ function toggleLoadingState(id, isLoading, text, icon) {
 }
 
 function clean() {
+	resetForm();
 	$(".graph-area").empty();
 	$("#form_upload_files")[0].reset();
 	disableButton(".btn", false);
 	disableButton(".form-control", false);
 	showButton("#btn_clean", false);
-
-	resetForm();
-    chartData = [];
-	arrhythmiaData = [];
 }
 
 function resetForm() {
-	isPlaying = false;
-	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-	clearInterval(interval);
+	togglePlayPause();
     chart;
+	chartData = [];
     currentIndex = 0;
     interval;
     segmentSize;
