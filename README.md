@@ -177,7 +177,7 @@ Jhon Favio España Cortes - [@jhonydev404](https://www.linkedin.com/in/jhonydev4
 [license-shield]: https://img.shields.io/github/license/Errol-Garcia/healthy-heart.svg?style=for-the-badge
 [license-url]: https://github.com/Errol-Garcia/healthy-heart/blob/master/LICENSE
 
-[product-screenshot]: images/healthy-heart-screenshot.png
+[product-screenshot]: .github/images/healthy-heart-screenshot.png
 
 [HTML.com]: https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white
 [HTML-url]: https://html.spec.whatwg.org/

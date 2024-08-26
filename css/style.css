@@ -57,6 +57,7 @@ main {
 #sidebar.expand {
     width: 260px;
     min-width: 260px;
+    overflow: hidden;
 }
 
 .toggle-btn {
@@ -193,7 +194,7 @@ body {
 }
 
 .card {
-    max-width: 900px;
+    max-width: 1200px;
 }
 
 .controls {
