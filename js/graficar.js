@@ -9,6 +9,7 @@ let numSegments;
 let totalTime;
 let currentSegment = 1;
 let isPlaying = false;
+let arrhythmiaData = [];
 let filename;
 
 $(document).ready(function () {
@@ -23,15 +24,13 @@ function initializeEventListeners() {
 
 function initializeFormValidation() {
 	$("#form_upload_files").validate({
-		rs: {
-			norxFile: { required: true },
-			evtxFile: { required: true },
-			qrsxFile: { required: true },
+		rules: {
+			segxFile: { required: true },
+			prdxFile: { required: true },
 		},
 		messages: {
-			norxFile: { required: "Por favor cargue un registro" },
-			evtxFile: { required: "Por favor cargue un registro" },
-			qrsxFile: { required: "Por favor cargue un registro" },
+			segxFile: { required: "Por favor cargue un registro" },
+			prdxFile: { required: "Por favor cargue un registro" },
 		},
 		highlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
 		unhighlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
@@ -50,19 +49,18 @@ async function handleFileUpload(e) {
 	disableButton(".btn", true);
 	disableButton(".form-control", true);
 
-	let isDisabled = false;
+	var isDisabled = false;
 
 	try {
 		const response = await uploadFiles(formData);
 		filename = response.filename;
-		const data = await fetchNormalizedData(filename);
+		const data = await fetchGraphData(filename);
 
 		setupChartData(data);
 		cloneTemplate();
 		initializeChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
-		$("#form_segment").submit(handleSegment);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -77,55 +75,16 @@ async function handleFileUpload(e) {
 	}
 }
 
-async function handleSegment(e) {
-	e.preventDefault();
-
-	isPlaying = true;
-    togglePlayPause();
-	toggleLoadingState("#btn_segment", true, "Segmentando...", null);
-	disableButton(".btn", true);
-
-	var isDisabled = false;
-
-	try {
-		const data = await fetchSegmentData(filename);
-		const segment = data.segmentation;
-	
-		setupDownloadLinks('#btn_download_segment', segment);
-		showButton(".download", true);
-		resetGraph();
-		isDisabled = true;
-
-		scrollToBottom();
-	} catch (error) {
-		console.error("Error al segmentar: ", error);
-		isDisabled = false;
-	} finally {
-		disableButton(".btn", false);
-		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_segment", isDisabled);
-		toggleLoadingState("#btn_segment", false, "Segmentar", "fa-heart-pulse");
-	}
-}
-
 function appendFilesToFormData(formData) {
-	formData.append("norxFile", $("#norxFile")[0].files[0]);
-	formData.append("evtxFile", $("#evtxFile")[0].files[0]);
-	formData.append("qrsxFile", $("#qrsxFile")[0].files[0]);
-}
+	const segxFile = $("#segxFile")[0].files[0];
+    const prdxFile = $("#prdxFile")[0].files[0];
 
-function appendFilesToFormData(formData) {
-	norxFile = $("#norxFile")[0].files[0];
-	evtxFile = $("#evtxFile")[0].files[0];
-	qrsxFile = $("#qrsxFile")[0].files[0];
-
-	if (!norxFile || !evtxFile || !qrsxFile) {
+	if (!segxFile || !prdxFile) {
         return false;
     }
 
-	formData.append("norxFile", norxFile);
-	formData.append("evtxFile", evtxFile);
-	formData.append("qrsxFile", qrsxFile);
+	formData.append("segxFile", segxFile);
+	formData.append("prdxFile", prdxFile);
 }
 
 async function uploadFiles(formData) {
@@ -138,18 +97,8 @@ async function uploadFiles(formData) {
 	});
 }
 
-async function fetchNormalizedData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/normalized/${filename}`);
-	return await response.json();
-}
-
-async function fetchSegmentData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/segment/${filename}`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
+async function fetchGraphData(filename) {
+	const response = await fetch(`http://127.0.0.1:5003/api/graph/${filename}`);
 	return await response.json();
 }
 
@@ -158,29 +107,15 @@ function setupChartData(data) {
 	segmentSize = Math.floor(samplingFrequency);
 	totalSamples = data.total_samples;
 	chartData = data.data;
+	arrhythmiaData = data.arrhythmia;
 	numSegments = data.num_segments;
 	totalTime = totalSamples / samplingFrequency;
 }
 
 function cloneTemplate() {
 	var template = $('#template_graph_area').prop('content');
-	var clone = $(template).find('#form_segment').clone();
+	var clone = $(template).find('#form_graph').clone();
 	$(".graph-area").append(clone);
-}
-
-function setupDownloadLinks(id, value) {
-    const path = '../api/files/';
-    $(id).attr('data-path', `${path}${value}`);
-
-    $(id).on('click', function () {
-        var filePath = $(this).data('path');
-        var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
-            href: filePath,
-            download: filePath.split('/').pop()
-        }).appendTo('body');
-        a[0].click();
-        a.remove();
-    });
 }
 
 function setupControlButtons() {
@@ -266,6 +201,20 @@ function updateProgress() {
 
 	const currentTime = currentIndex / samplingFrequency;
 	$("#progress_time").text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
+
+	if (arrhythmiaData.length > 0) {
+		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
+
+		if(arrhythmiaData[currentSegment - 1] === 0) {
+			$('#form_graph h3').html(`
+				Ritmo Cardiaco <span class="badge text-bg-success">normal</span>
+			`);
+		} else {
+			$('#form_graph h3').html(`
+				Ritmo Cardiaco <span class="badge text-bg-danger">arritmia</span>
+			`);
+		}
+	}
 }
 
 function formatTime(seconds) {
@@ -311,14 +260,6 @@ function clean() {
 	disableButton(".btn", false);
 	disableButton(".form-control", false);
 	showButton("#btn_clean", false);
-}
-
-function resetGraph() {
-	renderChart(chartData.slice(0, 2000));
-	$('#progress_bar').css('width', 0);
-	$('#progress_bar').attr('aria-valuenow', 0);
-	$("#progress_time").text(`00:00/${formatTime(totalTime)}`);
-	currentIndex = 0;
 }
 
 function resetForm() {

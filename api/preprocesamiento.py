@@ -1,7 +1,5 @@
 import numpy as np
-import csv
 from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
-
 
 def inicio(nombreArchivo):
     #se definen Variables
@@ -12,17 +10,16 @@ def inicio(nombreArchivo):
     etiquetas2=[]
     datosSeg=[]
     datosSegmentados=[]
-
-
     datosSeg=[]
     etiquetas1=[]
-    
+
+    # pdb.set_trace()
     #se llama a los registros
     raw_data, id_events=llamado(nombreArchivo)
     #se normaliza
     data_normal=normalizacion(raw_data)
     #se hace uso del detector QRS
-    qrs_locs=detectorQRS(nombreArchivo)
+    qrs_locs,_=detectorQRS(nombreArchivo)
 
     #se hace uso de los indices arrojados por el detector QRS
     p=segmentacion(data_normal, qrs_locs)
@@ -36,7 +33,6 @@ def inicio(nombreArchivo):
     ll=filtro(datosSegmentados)
     #Binarizacion de las etiquetas
     etiquetas1.append(Binarizacion(id_events))
-
 
     for i in range(len(etiquetas1)):
         for j in range(len(etiquetas1[i])):
@@ -54,18 +50,15 @@ def inicio(nombreArchivo):
     for i in range(len(etq)):
         for j in range(len(etq[i])):
             if(etq[i][j]==1):
-
                 dtsCom.append(dts[i][j])
                 etqCom.append(1)
             else:
-
                 dtsCom.append(dts[i][j])
                 etqCom.append(0)
 
     #se ajusta los segmentos de datos para que tengan la misma longitud
     dtsCom=ajusteDatos(dtsCom)
-    
-    np.savetxt(f'./files/datos-{nombreArchivo}.dat',dtsCom)
-    
-    return dtsCom,etqCom
 
+    np.savetxt(f'./files/datos-{nombreArchivo}.dat',dtsCom)
+
+    return dtsCom,etqCom
