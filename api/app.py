@@ -9,6 +9,7 @@ import wfdb
 from wfdb import processing
 import json
 from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
+import shutil
 
 app=Flask(__name__)
 CORS(app)
@@ -89,7 +90,7 @@ def predict(filename):
         'data': ecg_signal,
         'arrhythmia': etiquetas,
     }
-
+    
     return jsonify(response)
 
 @app.route('/api/normalize/<filename>', methods=['GET'])
@@ -322,6 +323,26 @@ def graph(filename):
     }
 
     return jsonify(response)
+
+
+@app.route('/api/pageLoad', methods=['GET'])
+def pageLoad():
+    # Ruta de la carpeta cuyo contenido quieres eliminar
+    # carpeta = '/ruta/a/la/carpeta'
+
+    # Eliminar archivos y subcarpetas
+    for archivo in os.listdir(app.config['UPLOAD_FOLDER']):
+        archivo_ruta = os.path.join(app.config['UPLOAD_FOLDER'], archivo)
+        try:
+            if os.path.isfile(archivo_ruta) or os.path.islink(archivo_ruta):
+                os.unlink(archivo_ruta)  # Elimina archivos o enlaces simbólicos
+            elif os.path.isdir(archivo_ruta):
+                shutil.rmtree(archivo_ruta)  # Elimina carpetas y su contenido
+        except Exception as e:
+            print(f'No se pudo eliminar {archivo_ruta}. Error: {e}')
+
+    
+    return jsonify()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5003)

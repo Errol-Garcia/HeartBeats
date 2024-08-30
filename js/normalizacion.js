@@ -12,6 +12,7 @@ let isPlaying = false;
 let filename;
 
 $(document).ready(function () {
+	pageLoad();
 	initializeEventListeners();
 	initializeFormValidation();
 });
@@ -342,4 +343,15 @@ function resetForm() {
     numSegments;
     totalTime;
     currentSegment = 1;
+}
+
+async function pageLoad(){
+	console.log("prueba pageLoad");
+	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
+	// return await response.json();
 }
