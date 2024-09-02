@@ -1,3 +1,5 @@
+const URL_API = 'http://127.0.0.1:5003/api/';
+
 let chart;
 let chartData = [];
 let currentIndex = 0;
@@ -25,14 +27,10 @@ function initializeEventListeners() {
 function initializeFormValidation() {
 	$("#form_upload_files").validate({
 		rs: {
-			norxFile: { required: true },
-			evtxFile: { required: true },
-			qrsxFile: { required: true },
+			segxFile: { required: true },
 		},
 		messages: {
-			norxFile: { required: "Por favor cargue un registro" },
-			evtxFile: { required: "Por favor cargue un registro" },
-			qrsxFile: { required: "Por favor cargue un registro" },
+			segxFile: { required: "Por favor cargue un registro" },
 		},
 		highlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
 		unhighlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
@@ -51,19 +49,19 @@ async function handleFileUpload(e) {
 	disableButton(".btn", true);
 	disableButton(".form-control", true);
 
-	let isDisabled = false;
+	var isDisabled = false;
 
 	try {
 		const response = await uploadFiles(formData);
 		filename = response.filename;
-		const data = await fetchNormalizedData(filename);
+		const data = await fetchSegmentedData(filename);
 
 		setupChartData(data);
 		cloneTemplate();
 		initializeChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
-		$("#form_segment").submit(handleSegment);
+		$("#form_predict").submit(handlePredict);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -73,79 +71,81 @@ async function handleFileUpload(e) {
 	} finally {
 		disableButton(".btn", false);
 		disableButton(".form-control", isDisabled);
-		disableButton("#btn_upload", isDisabled);
+        disableButton("#btn_upload", isDisabled);
 		toggleLoadingState("#btn_upload", false, "Cargar", "fa-upload");
 	}
 }
 
-async function handleSegment(e) {
+async function handlePredict(e) {
 	e.preventDefault();
 
 	isPlaying = true;
     togglePlayPause();
-	toggleLoadingState("#btn_segment", true, "Segmentando...", null);
+	toggleLoadingState("#btn_predict", true, "Prediciendo...", null);
 	disableButton(".btn", true);
 
 	var isDisabled = false;
 
 	try {
-		const data = await fetchSegmentData(filename);
-		const segment = data.segmentation;
+		const data = await fetchPredictData(filename);
+		const predict = data.prediction;
 	
-		setupDownloadLinks('#btn_download_segment', segment);
+		setupDownloadLinks('#btn_download_predict', predict);
 		showButton(".download", true);
 		resetGraph();
 		isDisabled = true;
 
 		scrollToBottom();
 	} catch (error) {
-		console.error("Error al segmentar: ", error);
+		console.error("Error al predecir: ", error);
 		isDisabled = false;
 	} finally {
 		disableButton(".btn", false);
 		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_segment", isDisabled);
-		toggleLoadingState("#btn_segment", false, "Segmentar", "fa-heart-pulse");
+		disableButton("#btn_predict", isDisabled);
+		toggleLoadingState("#btn_predict", false, "Predecir", "fa-heart-pulse");
 	}
 }
 
 function appendFilesToFormData(formData) {
-	formData.append("norxFile", $("#norxFile")[0].files[0]);
-	formData.append("evtxFile", $("#evtxFile")[0].files[0]);
-	formData.append("qrsxFile", $("#qrsxFile")[0].files[0]);
-}
+	segxFile = $("#segxFile")[0].files[0];
 
-function appendFilesToFormData(formData) {
-	norxFile = $("#norxFile")[0].files[0];
-	evtxFile = $("#evtxFile")[0].files[0];
-	qrsxFile = $("#qrsxFile")[0].files[0];
-
-	if (!norxFile || !evtxFile || !qrsxFile) {
+	if (!segxFile) {
         return false;
     }
 
-	formData.append("norxFile", norxFile);
-	formData.append("evtxFile", evtxFile);
-	formData.append("qrsxFile", qrsxFile);
+	formData.append("segxFile", segxFile);
 }
 
-async function uploadFiles(formData) {
-	return await $.ajax({
-		url: "http://127.0.0.1:5003/api/upload",
-		type: "POST",
-		data: formData,
-		contentType: false,
-		processData: false,
+async function pageLoad(){
+	const response = await fetch(`${URL_API}/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
 	});
 }
 
-async function fetchNormalizedData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/normalized/${filename}`);
+async function uploadFiles(formData) {
+	const response = await fetch(`${URL_API}/upload`, {
+		method: "POST",
+		body: formData,
+	});
 	return await response.json();
 }
 
-async function fetchSegmentData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/segment/${filename}`, {
+async function fetchSegmentedData(filename) {
+	const response = await fetch(`${URL_API}/segmented/${filename}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
+	return await response.json();
+}
+
+async function fetchPredictData(filename) {
+	const response = await fetch(`${URL_API}/predictonly/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -165,7 +165,7 @@ function setupChartData(data) {
 
 function cloneTemplate() {
 	var template = $('#template_graph_area').prop('content');
-	var clone = $(template).find('#form_segment').clone();
+	var clone = $(template).find('#form_predict').clone();
 	$(".graph-area").append(clone);
 }
 
@@ -281,18 +281,20 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).attr("disabled", "disabled");
+		btn.attr("disabled", "disabled");
 	} else {
-		$(selector).removeAttr("disabled");
+		btn.removeAttr("disabled");
 	}
 }
 
 function showButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).removeClass("d-none");
+		btn.removeClass("d-none");
 	} else {
-		$(selector).addClass("d-none");
+		btn.addClass("d-none");
 	}
 }
 
@@ -334,15 +336,4 @@ function resetForm() {
     numSegments;
     totalTime;
     currentSegment = 1;
-}
-
-async function pageLoad(){
-	console.log("prueba pageLoad");
-	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	// return await response.json();
 }

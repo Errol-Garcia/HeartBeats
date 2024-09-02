@@ -1,3 +1,5 @@
+const URL_API = 'http://127.0.0.1:5003/api/';
+
 let chart;
 let chartData = [];
 let currentIndex = 0;
@@ -136,23 +138,35 @@ function appendFilesToFormData(formData) {
 	formData.append("atrFile", atrFile);
 }
 
+async function pageLoad(){
+	const response = await fetch(`${URL_API}/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
+}
+
 async function uploadFiles(formData) {
-    return await $.ajax({
-        url: "http://127.0.0.1:5003/api/upload",
-        type: "POST",
-        data: formData,
-        contentType: false,
-        processData: false,
-    });
+	const response = await fetch(`${URL_API}/upload`, {
+		method: "POST",
+		body: formData,
+	});
+	return await response.json();
 }
 
 async function fetchECGData(filename) {
-    const response = await fetch(`http://127.0.0.1:5003/api/ecg/${filename}`);
-    return await response.json();
+	const response = await fetch(`${URL_API}/ecg/${filename}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
+	return await response.json();
 }
 
 async function fetchQRSData(filename) {
-    const response = await fetch(`http://127.0.0.1:5003/api/qrs/${filename}`, {
+    const response = await fetch(`${URL_API}/qrs/${filename}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -288,28 +302,30 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
-    if (isDisabled) {
-        $(selector).attr("disabled", "disabled");
-    } else {
-        $(selector).removeAttr("disabled");
-    }
+	const btn = $(selector);
+	if (isDisabled) {
+		btn.attr("disabled", "disabled");
+	} else {
+		btn.removeAttr("disabled");
+	}
 }
 
 function showButton(selector, isDisabled) {
-    if (isDisabled) {
-        $(selector).removeClass("d-none");
-    } else {
-        $(selector).addClass("d-none");
-    }
+	const btn = $(selector);
+	if (isDisabled) {
+		btn.removeClass("d-none");
+	} else {
+		btn.addClass("d-none");
+	}
 }
 
 function toggleLoadingState(id, isLoading, text, icon) {
-    const btn = $(id);
-    if (isLoading) {
-        btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text}`);
-    } else {
-        btn.html(`<i class="fa-solid ${icon}"></i> ${text}`);
-    }
+	const btn = $(id);
+	if (isLoading) {
+		btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text}`);
+	} else {
+		btn.html(`<i class="fa-solid ${icon}"></i> ${text}`);
+	}
 }
 
 function clean() {
@@ -341,15 +357,4 @@ function resetForm() {
     numSegments;
     totalTime;
     currentSegment = 1;
-}
-
-async function pageLoad(){
-	console.log("prueba pageLoad");
-	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	// return await response.json();
 }

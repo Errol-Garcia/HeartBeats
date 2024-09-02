@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Predicción de arritmias cardíacas | Graficar</title>
+    <title>Predicción de arritmias cardíacas | Segmentar</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -33,7 +33,7 @@
                 </button>
                 <div class="sidebar-logo">
                     <a class="logo-link" href="../index.html">
-                        <img src="../images/logo.svg" alt="Logo">
+                        <img src="../images/logo.webp" alt="Logo">
                     </a>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                         <li class="sidebar-item">
                             <a href="../index.html" class="sidebar-link">
                                 <i class="fa-solid fa-star text-warning-emphasis"></i>
-                                Completo
+                                Proceso Completo
                             </a>
                         </li>
                     </ul>
@@ -61,7 +61,7 @@
                     </a>
                     <ul id="white-box" class="sidebar-dropdown list-unstyled collapse show" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="normalizacion.html" class="sidebar-link">
+                            <a href="normalization.html" class="sidebar-link">
                                 <i class="fa-solid fa-ruler"></i>
                                 Normalizar
                             </a>
@@ -69,23 +69,23 @@
                         <li class="sidebar-item">
                             <a href="qrs.html" class="sidebar-link">
                                 <i class="fa-solid fa-heart-pulse"></i>
-                                QRS
+                                Obtener QRS
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="segmentacion.html" class="sidebar-link">
+                            <a href="segmentation.html" class="sidebar-link active">
                                 <i class="fa-solid fa-file-waveform"></i>
                                 Segmentar
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="prediccion.html" class="sidebar-link">
+                            <a href="prediction.html" class="sidebar-link">
                                 <i class="fas fa-solid fa-brain"></i>
                                 Predecir
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="graficar.html" class="sidebar-link active">
+                            <a href="graph.html" class="sidebar-link">
                                 <i class="fa-solid fa-wave-square"></i>
                                 Graficar
                             </a>
@@ -101,23 +101,32 @@
                     <div class="card-body">
                         <div class="upload-area">
                             <form id="form_upload_files" action="#" method="post" novalidate="novalidate">
-                                <h3 class="card-title text-center col-lg-12 mb-2">Cargar Registros</h3>
+                                <h3 class="card-title text-center col-lg-12 mb-2">SEGMENTAR</h3>
 
-                                <!-- Registro (.segx) -->
+                                <!-- Registro (.norx) -->
                                 <div class="col-lg-12 mb-2">
-                                    <label for="segxFile" class="col-form-label">Registro segmentado (.segx)</label>
+                                    <label for="norxFile" class="col-form-label">Registro normalizado (.norx)</label>
                                     <div class="custom-file">
-                                        <input type="file" class="form-control" name="segxFile"
-                                            id="segxFile" accept=".segx" placeholder="Selecciona un archivo" required>
+                                        <input type="file" class="form-control" name="norxFile"
+                                            id="norxFile" accept=".norx" placeholder="Selecciona un archivo" required>
                                     </div>
                                 </div>
 
-                                <!-- Registro (.prdx) -->
+                                <!-- Registro (.evtx) -->
                                 <div class="col-lg-12 mb-2">
-                                    <label for="prdxFile" class="col-form-label">Registro predecido (.prdx)</label>
+                                    <label for="evtxFile" class="col-form-label">Registro de eventos (.evtx)</label>
                                     <div class="custom-file">
-                                        <input type="file" class="form-control" name="prdxFile"
-                                            id="prdxFile" accept=".prdx" placeholder="Selecciona un archivo" required>
+                                        <input type="file" class="form-control" name="evtxFile"
+                                            id="evtxFile" accept=".evtx" placeholder="Selecciona un archivo" required>
+                                    </div>
+                                </div>
+
+                                <!-- Registro (.qrsx) -->
+                                <div class="col-lg-12 mb-2">
+                                    <label for="qrsxFile" class="col-form-label">Registro QRS (.qrsx)</label>
+                                    <div class="custom-file">
+                                        <input type="file" class="form-control" name="qrsxFile"
+                                            id="qrsxFile" accept=".qrsx" placeholder="Selecciona un archivo" required>
                                     </div>
                                 </div>
 
@@ -150,8 +159,8 @@
     </div>
 
     <template id="template_graph_area">
-        <form id="form_graph" action="#" method="post" novalidate="novalidate">
-            <h3 class="card-title text-center col-lg-12 mt-2 mb-2">Ritmo Cardiaco</h3>
+        <form id="form_segment" action="#" method="post" novalidate="novalidate">
+            <h3 class="card-title text-center col-lg-12 mt-2 mb-2">RITMO CARDIACO</h3>
             <div id="ecg-chart" class="col-lg-12 text-center mb-2">
                 <div class="ct-chart"></div>
             </div>
@@ -172,6 +181,14 @@
                 <button type="button" id="btn_forward" class="controls btn btn-dark mb-2">
                     <i class="fa-solid fa-forward"></i>
                 </button>
+                <button type="submit" id="btn_segment" class="btn btn-dark ms-auto">
+                    <i class="fa-solid fa-file-waveform"></i> Segmentar
+                </button>
+            </div>
+            <div class="col-lg-12 text-center g-2">
+                <button type="button" id="btn_download_segment" class="download btn btn-primary d-none"><i
+                        class="fa-solid fa-download"></i>
+                    Segmentacion</button>
             </div>
         </form>
     </template>
@@ -197,7 +214,7 @@
 
     <script src="../js/spinner.js"></script>
 
-    <script src="../js/graficar.js"></script>
+    <script src="../js/segmentation.js"></script>
 </body>
 
 </html>

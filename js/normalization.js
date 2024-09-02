@@ -1,3 +1,5 @@
+const URL_API = 'http://127.0.0.1:5003/api/';
+
 let chart;
 let chartData = [];
 let currentIndex = 0;
@@ -23,12 +25,29 @@ function initializeEventListeners() {
 }
 
 function initializeFormValidation() {
+	$.validator.addMethod("filesEqual", function (value, element, params) {
+		function getFileNameWithoutExtension(fileInput) {
+			let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
+			return fileName;
+		}
+
+		let heaFileName = getFileNameWithoutExtension(params[0]);
+		let datFileName = getFileNameWithoutExtension(params[1]);
+		let atrFileName = getFileNameWithoutExtension(params[2]);
+
+		return heaFileName === datFileName && heaFileName === atrFileName;
+	});
+
 	$("#form_upload_files").validate({
 		rs: {
-			segxFile: { required: true },
+			heaFile: { required: true },
+			datFile: { required: true },
+			atrFile: { required: true },
 		},
 		messages: {
-			segxFile: { required: "Por favor cargue un registro" },
+			heaFile: { required: "Por favor cargue un registro", filesEqual: "Los archivos deben tener el mismo nombre" },
+			datFile: { required: "Por favor cargue un registro" },
+			atrFile: { required: "Por favor cargue un registro" },
 		},
 		highlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
 		unhighlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
@@ -52,14 +71,14 @@ async function handleFileUpload(e) {
 	try {
 		const response = await uploadFiles(formData);
 		filename = response.filename;
-		const data = await fetchSegmentedData(filename);
+		const data = await fetchECGData(filename[0]);
 
 		setupChartData(data);
 		cloneTemplate();
 		initializeChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
-		$("#form_predict").submit(handlePredict);
+		$("#form_normalize").submit(handleNormalization);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -74,64 +93,82 @@ async function handleFileUpload(e) {
 	}
 }
 
-async function handlePredict(e) {
+async function handleNormalization(e) {
 	e.preventDefault();
 
 	isPlaying = true;
-    togglePlayPause();
-	toggleLoadingState("#btn_predict", true, "Prediciendo...", null);
+	togglePlayPause();
+	toggleLoadingState("#btn_normalize", true, "Normalizando...", null);
 	disableButton(".btn", true);
 
 	var isDisabled = false;
 
 	try {
-		const data = await fetchPredictData(filename);
-		const predict = data.prediction;
+		const data = await fetchNormalizationData(filename[0]);
+		const normalizacion = data.normalizacion;
+		const event = data.event;
 	
-		setupDownloadLinks('#btn_download_predict', predict);
+		setupDownloadLinks('#btn_download_normalization', normalizacion);
+		setupDownloadLinks('#btn_download_event', event);
 		showButton(".download", true);
 		resetGraph();
 		isDisabled = true;
 
 		scrollToBottom();
 	} catch (error) {
-		console.error("Error al predecir: ", error);
+		console.error("Error al normalizar: ", error);
 		isDisabled = false;
 	} finally {
 		disableButton(".btn", false);
 		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_predict", isDisabled);
-		toggleLoadingState("#btn_predict", false, "Predecir", "fa-heart-pulse");
+		disableButton("#btn_normalize", isDisabled);
+		toggleLoadingState("#btn_normalize", false, "Normalizar", "fa-ruler");
 	}
 }
 
 function appendFilesToFormData(formData) {
-	segxFile = $("#segxFile")[0].files[0];
+	heaFile = $("#heaFile")[0].files[0];
+	datFile = $("#datFile")[0].files[0];
+	atrFile = $("#atrFile")[0].files[0];
 
-	if (!segxFile) {
+	if (!heaFile || !datFile || !atrFile) {
         return false;
     }
 
-	formData.append("segxFile", segxFile);
+	formData.append("heaFile", heaFile);
+	formData.append("datFile", datFile);
+	formData.append("atrFile", atrFile);
 }
 
-async function uploadFiles(formData) {
-	return await $.ajax({
-		url: "http://127.0.0.1:5003/api/upload",
-		type: "POST",
-		data: formData,
-		contentType: false,
-		processData: false,
+async function pageLoad(){
+	const response = await fetch(`${URL_API}/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
 	});
 }
 
-async function fetchSegmentedData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/segmented/${filename}`);
+async function uploadFiles(formData) {
+	const response = await fetch(`${URL_API}/upload`, {
+		method: "POST",
+		body: formData,
+	});
 	return await response.json();
 }
 
-async function fetchPredictData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/predictonly/${filename}`, {
+async function fetchECGData(filename) {
+	const response = await fetch(`${URL_API}/ecg/${filename}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
+	return await response.json();
+}
+
+async function fetchNormalizationData(filename) {
+	const response = await fetch(`${URL_API}/normalize/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -151,7 +188,7 @@ function setupChartData(data) {
 
 function cloneTemplate() {
 	var template = $('#template_graph_area').prop('content');
-	var clone = $(template).find('#form_predict').clone();
+	var clone = $(template).find('#form_normalize').clone();
 	$(".graph-area").append(clone);
 }
 
@@ -267,18 +304,20 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).attr("disabled", "disabled");
+		btn.attr("disabled", "disabled");
 	} else {
-		$(selector).removeAttr("disabled");
+		btn.removeAttr("disabled");
 	}
 }
 
 function showButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).removeClass("d-none");
+		btn.removeClass("d-none");
 	} else {
-		$(selector).addClass("d-none");
+		btn.addClass("d-none");
 	}
 }
 
@@ -320,15 +359,4 @@ function resetForm() {
     numSegments;
     totalTime;
     currentSegment = 1;
-}
-
-async function pageLoad(){
-	console.log("prueba pageLoad");
-	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	// return await response.json();
 }

@@ -65,6 +65,9 @@ main {
     cursor: pointer;
     border: 0;
     padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .toggle-btn i {
@@ -77,8 +80,7 @@ main {
 }
 
 .sidebar-logo a img {
-    width: 164px;
-    height: 50px;
+    width: 174px;
 }
 
 #sidebar:not(.expand) .sidebar-logo,
@@ -213,6 +215,11 @@ body {
     border-color: #3f3e3e;
     box-shadow: none;
     outline: none;
+}
+
+.card-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
 }
 
 .error {
