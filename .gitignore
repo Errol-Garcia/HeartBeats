@@ -1,4 +1,5 @@
 /.vscode
-/api/__pycache__
+/api/__pycache__/
+/api/*.py[cod]
 /api/files
 /api/env

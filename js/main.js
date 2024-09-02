@@ -1,3 +1,5 @@
+const URL_API = 'http://127.0.0.1:5003/api';
+
 let chart;
 let chartData = [];
 let currentIndex = 0;
@@ -11,8 +13,6 @@ let currentSegment = 1;
 let isPlaying = false;
 let arrhythmiaData = [];
 let filename;
-
-
 
 $(document).ready(function () {
 	pageLoad();
@@ -139,23 +139,35 @@ function appendFilesToFormData(formData) {
 	formData.append("atrFile", atrFile);
 }
 
-async function uploadFiles(formData) {
-	return await $.ajax({
-		url: "http://127.0.0.1:5003/api/upload",
-		type: "POST",
-		data: formData,
-		contentType: false,
-		processData: false,
+async function pageLoad(){
+	const response = await fetch(`${URL_API}/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
 	});
 }
 
+async function uploadFiles(formData) {
+	const response = await fetch(`${URL_API}/upload`, {
+		method: "POST",
+		body: formData,
+	});
+	return await response.json();
+}
+
 async function fetchECGData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/ecg/${filename}`);
+	const response = await fetch(`${URL_API}/ecg/${filename}`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
+	});
 	return await response.json();
 }
 
 async function fetchPredictionData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/predict/${filename}`, {
+	const response = await fetch(`${URL_API}/predict/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -268,11 +280,11 @@ function updateProgress() {
 
 		if(arrhythmiaData[currentSegment - 1] === 0) {
 			$('#form_predict_arrhythmia h3').html(`
-				Ritmo Cardiaco <span class="badge text-bg-success">normal</span>
+				RITMO CARDIACO <span class="badge text-bg-success">normal</span>
 			`);
 		} else {
 			$('#form_predict_arrhythmia h3').html(`
-				Ritmo Cardiaco <span class="badge text-bg-danger">arritmia</span>
+				RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
 			`);
 		}
 	}
@@ -290,18 +302,20 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).attr("disabled", "disabled");
+		btn.attr("disabled", "disabled");
 	} else {
-		$(selector).removeAttr("disabled");
+		btn.removeAttr("disabled");
 	}
 }
 
 function showButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).removeClass("d-none");
+		btn.removeClass("d-none");
 	} else {
-		$(selector).addClass("d-none");
+		btn.addClass("d-none");
 	}
 }
 
@@ -344,16 +358,5 @@ function resetForm() {
     totalTime;
     currentSegment = 1;
     arrhythmiaData = [];
-}
-
-async function pageLoad(){
-	console.log("prueba pageLoad");
-	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	// return await response.json();
 }
 	

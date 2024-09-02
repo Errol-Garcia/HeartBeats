@@ -1,3 +1,5 @@
+const URL_API = '${URL_API}/';
+
 let chart;
 let chartData = [];
 let currentIndex = 0;
@@ -9,6 +11,7 @@ let numSegments;
 let totalTime;
 let currentSegment = 1;
 let isPlaying = false;
+let arrhythmiaData = [];
 let filename;
 
 $(document).ready(function () {
@@ -23,29 +26,14 @@ function initializeEventListeners() {
 }
 
 function initializeFormValidation() {
-	$.validator.addMethod("filesEqual", function (value, element, params) {
-		function getFileNameWithoutExtension(fileInput) {
-			let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
-			return fileName;
-		}
-
-		let heaFileName = getFileNameWithoutExtension(params[0]);
-		let datFileName = getFileNameWithoutExtension(params[1]);
-		let atrFileName = getFileNameWithoutExtension(params[2]);
-
-		return heaFileName === datFileName && heaFileName === atrFileName;
-	});
-
 	$("#form_upload_files").validate({
-		rs: {
-			heaFile: { required: true },
-			datFile: { required: true },
-			atrFile: { required: true },
+		rules: {
+			segxFile: { required: true },
+			prdxFile: { required: true },
 		},
 		messages: {
-			heaFile: { required: "Por favor cargue un registro", filesEqual: "Los archivos deben tener el mismo nombre" },
-			datFile: { required: "Por favor cargue un registro" },
-			atrFile: { required: "Por favor cargue un registro" },
+			segxFile: { required: "Por favor cargue un registro" },
+			prdxFile: { required: "Por favor cargue un registro" },
 		},
 		highlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
 		unhighlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
@@ -69,14 +57,13 @@ async function handleFileUpload(e) {
 	try {
 		const response = await uploadFiles(formData);
 		filename = response.filename;
-		const data = await fetchECGData(filename[0]);
+		const data = await fetchGraphData(filename);
 
 		setupChartData(data);
 		cloneTemplate();
 		initializeChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
-		$("#form_normalize").submit(handleNormalization);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -86,75 +73,42 @@ async function handleFileUpload(e) {
 	} finally {
 		disableButton(".btn", false);
 		disableButton(".form-control", isDisabled);
-        disableButton("#btn_upload", isDisabled);
+		disableButton("#btn_upload", isDisabled);
 		toggleLoadingState("#btn_upload", false, "Cargar", "fa-upload");
 	}
 }
 
-async function handleNormalization(e) {
-	e.preventDefault();
-
-	isPlaying = true;
-	togglePlayPause();
-	toggleLoadingState("#btn_normalize", true, "Normalizando...", null);
-	disableButton(".btn", true);
-
-	var isDisabled = false;
-
-	try {
-		const data = await fetchNormalizationData(filename[0]);
-		const normalizacion = data.normalizacion;
-		const event = data.event;
-	
-		setupDownloadLinks('#btn_download_normalization', normalizacion);
-		setupDownloadLinks('#btn_download_event', event);
-		showButton(".download", true);
-		resetGraph();
-		isDisabled = true;
-
-		scrollToBottom();
-	} catch (error) {
-		console.error("Error al normalizar: ", error);
-		isDisabled = false;
-	} finally {
-		disableButton(".btn", false);
-		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_normalize", isDisabled);
-		toggleLoadingState("#btn_normalize", false, "Normalizar", "fa-ruler");
-	}
-}
-
 function appendFilesToFormData(formData) {
-	heaFile = $("#heaFile")[0].files[0];
-	datFile = $("#datFile")[0].files[0];
-	atrFile = $("#atrFile")[0].files[0];
+	const segxFile = $("#segxFile")[0].files[0];
+    const prdxFile = $("#prdxFile")[0].files[0];
 
-	if (!heaFile || !datFile || !atrFile) {
+	if (!segxFile || !prdxFile) {
         return false;
     }
 
-	formData.append("heaFile", heaFile);
-	formData.append("datFile", datFile);
-	formData.append("atrFile", atrFile);
+	formData.append("segxFile", segxFile);
+	formData.append("prdxFile", prdxFile);
 }
 
-async function uploadFiles(formData) {
-	return await $.ajax({
-		url: "http://127.0.0.1:5003/api/upload",
-		type: "POST",
-		data: formData,
-		contentType: false,
-		processData: false,
+async function pageLoad(){
+	const response = await fetch(`${URL_API}/pageLoad`, {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json"
+		}
 	});
 }
 
-async function fetchECGData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/ecg/${filename}`);
+async function uploadFiles(formData) {
+	const response = await fetch(`${URL_API}/upload`, {
+		method: "POST",
+		body: formData,
+	});
 	return await response.json();
 }
 
-async function fetchNormalizationData(filename) {
-	const response = await fetch(`http://127.0.0.1:5003/api/normalize/${filename}`, {
+async function fetchGraphData(filename) {
+	const response = await fetch(`${URL_API}/graph/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -168,29 +122,15 @@ function setupChartData(data) {
 	segmentSize = Math.floor(samplingFrequency);
 	totalSamples = data.total_samples;
 	chartData = data.data;
+	arrhythmiaData = data.arrhythmia;
 	numSegments = data.num_segments;
 	totalTime = totalSamples / samplingFrequency;
 }
 
 function cloneTemplate() {
 	var template = $('#template_graph_area').prop('content');
-	var clone = $(template).find('#form_normalize').clone();
+	var clone = $(template).find('#form_graph').clone();
 	$(".graph-area").append(clone);
-}
-
-function setupDownloadLinks(id, value) {
-    const path = '../api/files/';
-    $(id).attr('data-path', `${path}${value}`);
-
-    $(id).on('click', function () {
-        var filePath = $(this).data('path');
-        var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
-            href: filePath,
-            download: filePath.split('/').pop()
-        }).appendTo('body');
-        a[0].click();
-        a.remove();
-    });
 }
 
 function setupControlButtons() {
@@ -276,6 +216,20 @@ function updateProgress() {
 
 	const currentTime = currentIndex / samplingFrequency;
 	$("#progress_time").text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
+
+	if (arrhythmiaData.length > 0) {
+		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
+
+		if(arrhythmiaData[currentSegment - 1] === 0) {
+			$('#form_graph h3').html(`
+				RITMO CARDIACO <span class="badge text-bg-success">normal</span>
+			`);
+		} else {
+			$('#form_graph h3').html(`
+				RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
+			`);
+		}
+	}
 }
 
 function formatTime(seconds) {
@@ -290,18 +244,20 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).attr("disabled", "disabled");
+		btn.attr("disabled", "disabled");
 	} else {
-		$(selector).removeAttr("disabled");
+		btn.removeAttr("disabled");
 	}
 }
 
 function showButton(selector, isDisabled) {
+	const btn = $(selector);
 	if (isDisabled) {
-		$(selector).removeClass("d-none");
+		btn.removeClass("d-none");
 	} else {
-		$(selector).addClass("d-none");
+		btn.addClass("d-none");
 	}
 }
 
@@ -323,14 +279,6 @@ function clean() {
 	showButton("#btn_clean", false);
 }
 
-function resetGraph() {
-	renderChart(chartData.slice(0, 2000));
-	$('#progress_bar').css('width', 0);
-	$('#progress_bar').attr('aria-valuenow', 0);
-	$("#progress_time").text(`00:00/${formatTime(totalTime)}`);
-	currentIndex = 0;
-}
-
 function resetForm() {
 	togglePlayPause();
     chart;
@@ -343,15 +291,4 @@ function resetForm() {
     numSegments;
     totalTime;
     currentSegment = 1;
-}
-
-async function pageLoad(){
-	console.log("prueba pageLoad");
-	const response = await fetch(`http://127.0.0.1:5003/api/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	// return await response.json();
 }

@@ -161,7 +161,6 @@ def normalized_signal(filename):
 
 @app.route('/api/segment/<filename>', methods=['GET'])
 def segment(filename):
-    # se definen las variables
     etq=[]
     dts=[]
     etiquetas1=[]
@@ -182,7 +181,6 @@ def segment(filename):
     qrs_locs = np.array(data['qrs'])
     fs = data['fs']
 
-    #se hace uso de los indices arrojados por el detector QRS
     p=segmentacion(data_normal, qrs_locs)
 
     datosSeg.append(p)
@@ -193,7 +191,6 @@ def segment(filename):
 
     ll=filtro(datosSegmentados)
 
-    #Binarizacion de las etiquetas
     etiquetas1.append(Binarizacion(id_events))
 
     for i in range(len(etiquetas1)):
@@ -208,7 +205,6 @@ def segment(filename):
     dtsCom=[]
     etqCom=[]
 
-    #se ubica en una sola lista los datos de todos los regitros, asi mismo con las etiquetas
     for i in range(len(etq)):
         for j in range(len(etq[i])):
             if(etq[i][j]==1):
@@ -218,7 +214,6 @@ def segment(filename):
                 dtsCom.append(dts[i][j])
                 etqCom.append(0)
 
-    #se ajusta los segmentos de datos para que tengan la misma longitud
     dtsCom=ajusteDatos(dtsCom)
 
     total_samples = len(data_normal)
@@ -324,24 +319,18 @@ def graph(filename):
 
     return jsonify(response)
 
-
 @app.route('/api/pageLoad', methods=['GET'])
 def pageLoad():
-    # Ruta de la carpeta cuyo contenido quieres eliminar
-    # carpeta = '/ruta/a/la/carpeta'
-
-    # Eliminar archivos y subcarpetas
-    for archivo in os.listdir(app.config['UPLOAD_FOLDER']):
-        archivo_ruta = os.path.join(app.config['UPLOAD_FOLDER'], archivo)
+    for file in os.listdir(app.config['UPLOAD_FOLDER']):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
         try:
-            if os.path.isfile(archivo_ruta) or os.path.islink(archivo_ruta):
-                os.unlink(archivo_ruta)  # Elimina archivos o enlaces simbólicos
-            elif os.path.isdir(archivo_ruta):
-                shutil.rmtree(archivo_ruta)  # Elimina carpetas y su contenido
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
         except Exception as e:
-            print(f'No se pudo eliminar {archivo_ruta}. Error: {e}')
+            print(f'No se pudo eliminar {file_path}.error: {e}')
 
-    
     return jsonify()
 
 if __name__ == '__main__':

@@ -14,12 +14,12 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Errol-Garcia/healthy-heart">
-    <img src="images/logo.svg" alt="Logo" width="300" height="100">
+  <a href="https://github.com/Errol-Garcia/HeartBeats">
+    <img src="images/logo.webp" alt="Logo" width="300">
   </a>
 
   <p align="center">
-    Software para facilitar la detección de arritmias cardiacas por medio de inteligencia artificial
+    Transforma tu enfoque en la detección de arritmias con nuestra innovadora plataforma web.
   </p>
 </div>
 
@@ -54,7 +54,17 @@
 <!-- ABOUT THE PROJECT -->
 ## Acerca del proyecto
 
-![Healthy Heart Screen Shot][product-screenshot]
+![HeartBeats Screen Shot](.github/images/heartbeats-screenshot.gif)
+
+Basada en redes neuronales convolucionales  y datos de señales ECG del [MIT-BIH](https://physionet.org/content/mitdb/1.0.0/) , nuestra herramienta está diseñada para brindarte un análisis exhaustivo y preciso. Con características destacadas como:
+
+* **Normalización de señales ECG:** Mejora la calidad de tus datos para una mayor precisión.
+* **Detección de QRS:** Localiza los complejos QRS en las señales para un diagnóstico detallado.
+* **Segmentación y pre procesamiento:** Optimiza tus datos para una evaluación más clara.
+* **Predicción de arritmias:** Ofrece pronósticos confiables sobre posibles arritmias cardíacas.
+* **Graficado de señales ECG:** Proporciona una visualización detallada para una mejor interpretación.
+
+Con nuestra plataforma, mejorarás el cuidado de la salud cardíaca y lograrás diagnósticos más rápidos y precisos.
 
 <p align="right">(<a href="#readme-top">Principio de página</a>)</p>
 
@@ -66,6 +76,7 @@
 * [![CSS][CSS.com]][CSS-url]
 * [![JavaScript][JavaScript.com]][JavaScript-url]
 * [![Python][Python.com]][Python-url]
+* [![Flask][Flask.com]][Flask-url]
 * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 * [![JQuery][JQuery.com]][JQuery-url]
 
@@ -91,7 +102,7 @@ Antes de comenzar, asegúrate de tener instalados los siguientes componentes y h
 
 1. Clona el repositorio
    ```sh
-   git clone https://github.com/Errol-Garcia/healthy-heart.git
+   git clone https://github.com/Errol-Garcia/HeartBeats.git
    ```
 2. Navega al directorio `api`
    ```sh
@@ -162,22 +173,20 @@ Jhon Favio España Cortes - [@jhonydev404](https://www.linkedin.com/in/jhonydev4
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/Errol-Garcia/healthy-heart.svg?style=for-the-badge
-[contributors-url]: https://github.com/Errol-Garcia/healthy-heart/graphs/contributors
+[contributors-shield]: https://img.shields.io/github/contributors/Errol-Garcia/HeartBeats.svg?style=for-the-badge
+[contributors-url]: https://github.com/Errol-Garcia/HeartBeats/graphs/contributors
 
-[forks-shield]: https://img.shields.io/github/forks/Errol-Garcia/healthy-heart.svg?style=for-the-badge
-[forks-url]: https://github.com/Errol-Garcia/healthy-heart/network/members
+[forks-shield]: https://img.shields.io/github/forks/Errol-Garcia/HeartBeats.svg?style=for-the-badge
+[forks-url]: https://github.com/Errol-Garcia/HeartBeats/network/members
 
-[stars-shield]: https://img.shields.io/github/stars/Errol-Garcia/healthy-heart.svg?style=for-the-badge
-[stars-url]: https://github.com/Errol-Garcia/healthy-heart/stargazers
+[stars-shield]: https://img.shields.io/github/stars/Errol-Garcia/HeartBeats.svg?style=for-the-badge
+[stars-url]: https://github.com/Errol-Garcia/HeartBeats/stargazers
 
-[issues-shield]: https://img.shields.io/github/issues/Errol-Garcia/healthy-heart.svg?style=for-the-badge
-[issues-url]: https://github.com/Errol-Garcia/healthy-heart/issues
+[issues-shield]: https://img.shields.io/github/issues/Errol-Garcia/HeartBeats.svg?style=for-the-badge
+[issues-url]: https://github.com/Errol-Garcia/HeartBeats/issues
 
-[license-shield]: https://img.shields.io/github/license/Errol-Garcia/healthy-heart.svg?style=for-the-badge
-[license-url]: https://github.com/Errol-Garcia/healthy-heart/blob/master/LICENSE
-
-[product-screenshot]: .github/images/healthy-heart-screenshot.png
+[license-shield]: https://img.shields.io/github/license/Errol-Garcia/HeartBeats.svg?style=for-the-badge
+[license-url]: https://github.com/Errol-Garcia/HeartBeats/blob/master/LICENSE
 
 [HTML.com]: https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white
 [HTML-url]: https://html.spec.whatwg.org/
@@ -190,6 +199,9 @@ Jhon Favio España Cortes - [@jhonydev404](https://www.linkedin.com/in/jhonydev4
 
 [Python.com]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
 [Python-url]: https://python.org
+
+[Flask.com]: https://img.shields.io/badge/flask-004b6b?style=for-the-badge&logo=flask&logoColor=white
+[Flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com
