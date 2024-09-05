@@ -234,7 +234,7 @@ body {
 }
 
 .ct-series-a .ct-line {
-    stroke: #000;
+    stroke: green;
     stroke-width: 1.5px;
 }
 .ct-series-a .ct-point {
@@ -244,4 +244,21 @@ body {
 #progress_time {
     width: 100px;
     max-width: 100px;
+}
+
+/* Centrar el contenedor del logo */
+.logo-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+/* Ajustar el tamaño del logo */
+.logo-title img {
+    max-width: 80%;
+    height: auto;
+    max-height: 80px; /* Ajusta según tu preferencia */
+    width: auto;
 }
