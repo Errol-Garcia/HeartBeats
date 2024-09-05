@@ -15,7 +15,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Errol-Garcia/HeartBeats">
-    <img src="images/logo.webp" alt="Logo" width="300">
+    <img src="images/logo_HeartBeats.webp" alt="Logo" width="300">
   </a>
 
   <p align="center">
