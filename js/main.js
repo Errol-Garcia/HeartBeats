@@ -95,9 +95,16 @@ async function handlePrediction(e) {
 		const data = await fetchPredictionData(filename[0]);
 		chartData = data.data;
 		arrhythmiaData = data.arrhythmia;
-
-		initializeChart();
-		resetGraph();
+        chart = null;
+		$("#graph-area").empty();
+		// isDisabled = true;
+		// resetForm()
+		// setupChartData2(data);
+		cloneTemplate2();
+		setupSlider();
+		updateChart2();
+		setupControlButtons2();
+		showButton("#btn_clean", true);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -198,12 +205,24 @@ function cloneTemplate() {
 	var clone = $(template).find('#form_predict_arrhythmia').clone();
 	$(".graph-area").append(clone);
 }
-
+function cloneTemplate2() {
+	var template = $('#template_graph_area2').prop('content');
+	var clone = $(template).find('#form_graph').clone();
+	$(".graph-area2").append(clone);
+}
 function setupControlButtons() {
 	$("#btn_backward").on("click", backward);
 	$("#btn_play").on("click", togglePlayPause);
 	$("#btn_forward").on("click", forward);
 	$("#btn_clean").on("click", clean);
+}
+function setupControlButtons2() {
+	$("#btn_backward2").on("click", backward2);
+	$("#btn_play2").on("click", togglePlayPause2);
+	$("#btn_forward2").on("click", forward2);
+	$("#btn_clean2").on("click", clean);
+	$("#time_slider").on("input", sliderInput);
+	$("#progress_bar").on("input", sliderInput);
 }
 
 function initializeChart() {
@@ -211,6 +230,12 @@ function initializeChart() {
 		renderChart(chartData.slice(0, 2000));
 		updateProgress();
 	}, 0);
+}
+
+function setupSlider() {
+	$('#time_slider').attr('max', 100);
+	$('#time_slider').val(0);
+	updateProgress2();
 }
 
 function renderChart(data) {
@@ -230,6 +255,63 @@ function renderChart(data) {
 	}, chartOptions);
 }
 
+function renderChart2(data, labels) {
+	const ctx = $('#ecgChart2')[0].getContext('2d');
+	const segmentData = data.map((y, i) => ({ x: i, y: y }));
+
+	if (labels[0] === 0) {
+		$('#title_cardiac_rhythm').html(`
+			RITMO CARDIACO <span class="badge text-bg-success">normal</span>
+		`);
+	} else {
+		$('#title_cardiac_rhythm').html(`
+			RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
+		`);
+	}
+
+	if (chart) {
+		chart.destroy();
+	}
+
+	chart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			datasets: [{
+				label: `Segment ${currentIndex + 1}`,
+				data: segmentData,
+				borderColor: labels[0] === 1 ? 'red' : 'green',
+				borderWidth: 2,
+				fill: false,
+				pointRadius: 0,
+			}]
+		},
+		options: {
+			scales: {
+				x: {
+					type: 'linear',
+					position: 'bottom',
+					beginAtZero: true,
+					ticks: {
+						callback: function (value) {
+							return `${(value / samplingFrequency).toFixed(2)}s`;
+						}
+					}
+				}
+			},
+			elements: {
+				line: {
+					tension: 0
+				}
+			},
+			plugins: {
+				legend: {
+					display: false
+				}
+			}
+		}
+	});
+}
+
 function updateChart() {
 	currentIndex += segmentSize;
 	if (currentIndex >= chartData.length) {
@@ -240,6 +322,23 @@ function updateChart() {
 	updateProgress();
 }
 
+function updateChart2() {
+	if (chartData.length === 0 || arrhythmiaData.length === 0) {
+		console.error('No hay datos para visualizar');
+		return;
+	}
+
+	const segmentData = chartData[currentIndex];
+	const arrythmiaLabel = arrhythmiaData[currentIndex];
+	if (!segmentData) {
+		console.error('No hay datos de segmento disponibles');
+		return;
+	}
+
+	renderChart2(segmentData, [arrythmiaLabel]);
+	updateProgress2();
+}
+
 function togglePlayPause() {
 	isPlaying = !isPlaying;
 	if (isPlaying) {
@@ -248,6 +347,27 @@ function togglePlayPause() {
 	} else {
 		clearInterval(interval);
 		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
+	}
+}
+
+function togglePlayPause2() {
+	isPlaying = !isPlaying;
+	if (isPlaying) {
+		isPlaying = true;
+		clearInterval(interval);
+		interval = setInterval(() => {
+			currentIndex++;
+			if (currentIndex >= chartData.length) {
+				currentIndex = chartData.length - 1;
+				togglePlayPause2();
+			}
+			updateChart2();
+		}, 1000);
+		$("#btn_play2").html(`<i class="fa-solid fa-pause"></i>`);
+	} else {
+		isPlaying = false;
+		clearInterval(interval);
+		$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
 	}
 }
 
@@ -263,6 +383,17 @@ function forward() {
 	updateProgress();
 }
 
+function forward2() {
+	isPlaying = false;
+	clearInterval(interval);
+	$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+	currentIndex++;
+	if (currentIndex >= chartData.length) {
+		currentIndex = chartData.length - 1;
+	}
+	updateChart2();
+}
+
 function backward() {
 	isPlaying = false;
 	clearInterval(interval);
@@ -273,6 +404,28 @@ function backward() {
 	}
 	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
+}
+
+function backward2() {
+	isPlaying = false;
+	clearInterval(interval);
+	$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+	currentIndex--;
+	if (currentIndex < 0) {
+		currentIndex = 0;
+	}
+	updateChart2();
+}
+
+function sliderInput() {
+	$('#time_slider').on('click', function () {
+		isPlaying = false;
+		clearInterval(interval);
+		$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+		const newProgress = $(this).val();
+		currentIndex = Math.floor((newProgress / 100) * (chartData.length - 1));
+		updateChart2();
+	});
 }
 
 function updateProgress() {
@@ -295,6 +448,20 @@ function updateProgress() {
 				RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
 			`);
 		}
+	}
+}
+
+function updateProgress2() {
+	const timeSlider = $('#time_slider')
+	const progressTime = $('#progress_time2');
+	const progress = (currentIndex / (chartData.length - 1)) * 100;
+
+	const currentTime = currentIndex * (segmentSize / samplingFrequency);
+	progressTime.text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
+	timeSlider.val(progress);
+
+	if (arrhythmiaData.length > 0) {
+		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
 	}
 }
 
@@ -339,6 +506,7 @@ function toggleLoadingState(id, isLoading, text, icon) {
 function clean() {
 	resetForm();
 	$(".graph-area").empty();
+	$(".graph-area2").empty();
 	$("#form_upload_files")[0].reset();
 	disableButton(".btn", false);
 	disableButton(".form-control", false);
