@@ -313,7 +313,7 @@ def graph(filename):
         'total_samples': total_samples,
         'sampling_frequency': sampling_frequency,
         'num_segments': num_segments,
-        'data': segmented_signal.flatten().tolist(),
+        'data': segmented_signal.tolist(),
         'arrhythmia': predict,
     }
 
