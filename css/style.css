@@ -7,10 +7,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Poppins', sans-serif;
-}
-
 a {
     text-decoration: none;
 }
@@ -19,15 +15,14 @@ li {
     list-style: none;
 }
 
-h1 {
-    font-weight: 600;
-    font-size: 1.5rem;
+body {
+    font-family: 'Poppins', sans-serif;
 }
 
 .wrapper {
-    display: flex;
     width: 100%;
     height: 100vh;
+    display: flex;
 }
 
 .container-content {
@@ -35,8 +30,21 @@ h1 {
     height: 100vh;
     min-height: 100vh;
     display: grid;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: auto 1fr auto;
     overflow-y: auto;
+}
+
+.logo-title {
+    padding: 5px 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-title img {
+    width: 350px;
+    height: auto;
+    max-width: 80%;
 }
 
 main {
@@ -45,9 +53,10 @@ main {
 }
 
 #sidebar {
-    min-width: 80px;
+    width: 70px;
+    height: 100vh;
+    min-width: 70px;
     max-height: 100vh;
-    position: static;
     z-index: 1000;
     transition: all .25s ease-in-out;
     display: flex;
@@ -65,9 +74,6 @@ main {
     cursor: pointer;
     border: 0;
     padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .toggle-btn i {
@@ -75,17 +81,8 @@ main {
     color: #FFF;
 }
 
-.sidebar-logo {
-    margin: auto 0;
-}
-
-.sidebar-logo a img {
-    width: 174px;
-}
-
 #sidebar:not(.expand) .sidebar-logo,
 #sidebar:not(.expand) a.sidebar-link span {
-    transition: all 1s ease-in-out;
     display: none;
 }
 
@@ -101,30 +98,21 @@ a.sidebar-link {
     font-size: 0.9rem;
     white-space: nowrap;
     border-left: 3px solid transparent;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-}
-
-a.logo-link {
-    white-space: nowrap;
+    position: relative;
 }
 
 .sidebar-link i {
     width: 32px;
     height: 32px;
     font-size: 1.1rem;
-    margin-right: .64rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-right: .75rem;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 32px;
 }
 
-a.sidebar-link:hover {
-    background-color: rgba(255, 255, 255, .075);
-    border-left: 3px solid #3b7ddd;
-}
-
+a.sidebar-link:hover,
 a.sidebar-link.active {
     background-color: rgba(255, 255, 255, .075);
     border-left: 3px solid #3b7ddd;
@@ -196,7 +184,9 @@ body {
 }
 
 .card {
-    max-width: 1200px;
+    width: 100%;
+    min-width: 400px;
+    max-width: 1100px;
 }
 
 .controls {
@@ -237,6 +227,7 @@ body {
     stroke: green;
     stroke-width: 1.5px;
 }
+
 .ct-series-a .ct-point {
     display: none;
 }
@@ -246,35 +237,17 @@ body {
     max-width: 100px;
 }
 
-/* Centrar el contenedor del logo */
-.logo-title {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-}
-
-/* Ajustar el tamaño del logo */
-.logo-title img {
-    max-width: 80%;
-    height: auto;
-    max-height: 80px; /* Ajusta según tu preferencia */
-    width: auto;
-}
-
 progress {
     width: 300px;
     margin-right: 10px;
-  }
-  
-  input[type="range"] {
+}
+
+input[type="range"] {
     width: 300px;
     margin-top: 10px;
-  }
-  
-  #time-slider {
-    -webkit-appearance: none; 
+}
+
+#time-slider {
     width: 100%;
     height: 10px;
     background: #ddd;
@@ -282,6 +255,7 @@ progress {
     opacity: 0.7;
     transition: opacity .15s ease-in-out;
 }
+
 #time-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -290,6 +264,7 @@ progress {
     background: #007bff;
     cursor: pointer;
 }
+
 #time-slider::-moz-range-thumb {
     width: 20px;
     height: 20px;
