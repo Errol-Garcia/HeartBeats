@@ -196,10 +196,7 @@ def segment(filename):
     for i in range(len(etiquetas1)):
         for j in range(len(etiquetas1[i])):
             etiquetas2.append(etiquetas1[i][j])
-    """
-    se completan los datos y las etiquetas con el fin de que tengan la misma
-    la misma longitud y se realiza el filtro de los mismos
-    """
+
     etq, dts = completar(etiquetas2, datosSegmentados)
 
     dtsCom=[]

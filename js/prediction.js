@@ -26,7 +26,7 @@ function initializeEventListeners() {
 
 function initializeFormValidation() {
 	$("#form_upload_files").validate({
-		rs: {
+		rules: {
 			segxFile: { required: true },
 		},
 		messages: {
@@ -41,9 +41,8 @@ async function handleFileUpload(e) {
 	e.preventDefault();
 
 	const formData = new FormData(this);
-	if (appendFilesToFormData(formData) === false) {
-		return;
-	}
+	if (validateEmptyFiles() === false) return;
+	appendFilesToFormData(formData);
 
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
@@ -71,7 +70,7 @@ async function handleFileUpload(e) {
 	} finally {
 		disableButton(".btn", false);
 		disableButton(".form-control", isDisabled);
-        disableButton("#btn_upload", isDisabled);
+		disableButton("#btn_upload", isDisabled);
 		toggleLoadingState("#btn_upload", false, "Cargar", "fa-upload");
 	}
 }
@@ -80,7 +79,7 @@ async function handlePredict(e) {
 	e.preventDefault();
 
 	isPlaying = true;
-    togglePlayPause();
+	togglePlayPause();
 	toggleLoadingState("#btn_predict", true, "Prediciendo...", null);
 	disableButton(".btn", true);
 
@@ -89,7 +88,7 @@ async function handlePredict(e) {
 	try {
 		const data = await fetchPredictData(filename);
 		const predict = data.prediction;
-	
+
 		setupDownloadLinks('#btn_download_predict', predict);
 		showButton(".download", true);
 		resetGraph();
@@ -107,17 +106,21 @@ async function handlePredict(e) {
 	}
 }
 
-function appendFilesToFormData(formData) {
+function validateEmptyFiles() {
 	segxFile = $("#segxFile")[0].files[0];
 
 	if (!segxFile) {
-        return false;
-    }
+		return false;
+	}
+}
+
+function appendFilesToFormData(formData) {
+	segxFile = $("#segxFile")[0].files[0];
 
 	formData.append("segxFile", segxFile);
 }
 
-async function pageLoad(){
+async function pageLoad() {
 	const response = await fetch(`${URL_API}/pageLoad`, {
 		method: "GET",
 		headers: {
@@ -170,32 +173,32 @@ function cloneTemplate() {
 }
 
 function setupDownloadLinks(id, value) {
-    const path = '../api/files/';
-    $(id).attr('data-path', `${path}${value}`);
+	const path = '../api/files/';
+	$(id).attr('data-path', `${path}${value}`);
 
-    $(id).on('click', function () {
-        var filePath = $(this).data('path');
-        var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
-            href: filePath,
-            download: filePath.split('/').pop()
-        }).appendTo('body');
-        a[0].click();
-        a.remove();
-    });
+	$(id).on('click', function () {
+		var filePath = $(this).data('path');
+		var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
+			href: filePath,
+			download: filePath.split('/').pop()
+		}).appendTo('body');
+		a[0].click();
+		a.remove();
+	});
 }
 
 function setupControlButtons() {
-    $("#btn_backward").on("click", backward);
-    $("#btn_play").on("click", togglePlayPause);
-    $("#btn_forward").on("click", forward);
-    $("#btn_clean").on("click", clean);
+	$("#btn_backward").on("click", backward);
+	$("#btn_play").on("click", togglePlayPause);
+	$("#btn_forward").on("click", forward);
+	$("#btn_clean").on("click", clean);
 }
 
 function initializeChart() {
-    setTimeout(() => {
-        renderChart(chartData.slice(0, 2000));
-        updateProgress();
-    }, 0);
+	setTimeout(() => {
+		renderChart(chartData.slice(0, 2000));
+		updateProgress();
+	}, 0);
 }
 
 function renderChart(data) {
@@ -226,14 +229,14 @@ function updateChart() {
 }
 
 function togglePlayPause() {
-    isPlaying = !isPlaying;
-    if (isPlaying) {
-        interval = setInterval(updateChart, 1000);
-        $("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
-    } else {
-        clearInterval(interval);
-        $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-    }
+	isPlaying = !isPlaying;
+	if (isPlaying) {
+		interval = setInterval(updateChart, 1000);
+		$("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
+	} else {
+		clearInterval(interval);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
+	}
 }
 
 function forward() {
@@ -326,14 +329,14 @@ function resetGraph() {
 
 function resetForm() {
 	togglePlayPause();
-    chart;
+	chart;
 	chartData = [];
-    currentIndex = 0;
-    interval;
-    segmentSize;
-    samplingFrequency;
-    totalSamples;
-    numSegments;
-    totalTime;
-    currentSegment = 1;
+	currentIndex = 0;
+	interval;
+	segmentSize;
+	samplingFrequency;
+	totalSamples;
+	numSegments;
+	totalTime;
+	currentSegment = 1;
 }

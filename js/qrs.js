@@ -25,27 +25,14 @@ function initializeEventListeners() {
 }
 
 function initializeFormValidation() {
-    $.validator.addMethod("filesEqual", function (value, element, params) {
-        function getFileNameWithoutExtension(fileInput) {
-            let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
-            return fileName;
-        }
-
-        let heaFileName = getFileNameWithoutExtension(params[0]);
-        let datFileName = getFileNameWithoutExtension(params[1]);
-        let atrFileName = getFileNameWithoutExtension(params[2]);
-
-        return heaFileName === datFileName && heaFileName === atrFileName;
-    });
-
     $("#form_upload_files").validate({
-        rs: {
+        rules: {
             heaFile: { required: true },
             datFile: { required: true },
             atrFile: { required: true },
         },
         messages: {
-            heaFile: { required: "Por favor cargue un registro", filesEqual: "Los archivos deben tener el mismo nombre" },
+            heaFile: { required: "Por favor cargue un registro" },
             datFile: { required: "Por favor cargue un registro" },
             atrFile: { required: "Por favor cargue un registro" },
         },
@@ -58,9 +45,9 @@ async function handleFileUpload(e) {
     e.preventDefault();
 
     const formData = new FormData(this);
-	if (appendFilesToFormData(formData) === false) {
-		return;
-	}
+    if (validateEmptyFiles() === false) return;
+    if (validateDifferentFiles() === false) return;
+    appendFilesToFormData(formData);
 
     toggleLoadingState("#btn_upload", true, "Cargando...", null);
     disableButton(".btn", true);
@@ -100,27 +87,52 @@ async function handleQRS(e) {
     togglePlayPause();
     toggleLoadingState("#btn_qrs", true, "Obteniendo...", null);
     disableButton(".btn", true);
-    
-	var isDisabled = false;
 
-	try {
+    var isDisabled = false;
+
+    try {
         const data = await fetchQRSData(filename[0]);
         const qrs = data.qrs;
-    
-        setupDownloadLinks('#btn_download_qrs', qrs);   
-        showButton(".download", true);
-		resetGraph();
-		isDisabled = true;
 
-		scrollToBottom();
-	} catch (error) {
-		console.error("Error al obtener qrs: ", error);
-		isDisabled = false;
-	} finally {
-		disableButton(".btn", false);
-		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_qrs", isDisabled);
-		toggleLoadingState("#btn_qrs", false, "Obtener QRS", "fa-heart-pulse");
+        setupDownloadLinks('#btn_download_qrs', qrs);
+        showButton(".download", true);
+        resetGraph();
+        isDisabled = true;
+
+        scrollToBottom();
+    } catch (error) {
+        console.error("Error al obtener qrs: ", error);
+        isDisabled = false;
+    } finally {
+        disableButton(".btn", false);
+        disableButton("#btn_upload", isDisabled);
+        disableButton("#btn_qrs", isDisabled);
+        toggleLoadingState("#btn_qrs", false, "Obtener QRS", "fa-heart-pulse");
+    }
+}
+
+function validateEmptyFiles() {
+	heaFile = $("#heaFile")[0].files[0];
+	datFile = $("#datFile")[0].files[0];
+	atrFile = $("#atrFile")[0].files[0];
+
+	if (!heaFile || !datFile || !atrFile) {
+		return false;
+	}
+}
+
+function validateDifferentFiles() {
+	heaFile = $("#heaFile")[0].files[0]["name"].split(".")[0];
+	datFile = $("#datFile")[0].files[0]["name"].split(".")[0];
+	atrFile = $("#atrFile")[0].files[0]["name"].split(".")[0];
+
+	if (heaFile != datFile || heaFile != atrFile) {
+		Swal.fire({
+			icon: "error",
+			title: "Oops...",
+			text: "Los archivos cargados deben tener el mismo nombre",
+		});
+		return false;
 	}
 }
 
@@ -129,40 +141,36 @@ function appendFilesToFormData(formData) {
 	datFile = $("#datFile")[0].files[0];
 	atrFile = $("#atrFile")[0].files[0];
 
-	if (!heaFile || !datFile || !atrFile) {
-        return false;
-    }
-
 	formData.append("heaFile", heaFile);
 	formData.append("datFile", datFile);
 	formData.append("atrFile", atrFile);
 }
 
-async function pageLoad(){
-	const response = await fetch(`${URL_API}/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
+async function pageLoad() {
+    const response = await fetch(`${URL_API}/pageLoad`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 }
 
 async function uploadFiles(formData) {
-	const response = await fetch(`${URL_API}/upload`, {
-		method: "POST",
-		body: formData,
-	});
-	return await response.json();
+    const response = await fetch(`${URL_API}/upload`, {
+        method: "POST",
+        body: formData,
+    });
+    return await response.json();
 }
 
 async function fetchECGData(filename) {
-	const response = await fetch(`${URL_API}/ecg/${filename}`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-	return await response.json();
+    const response = await fetch(`${URL_API}/ecg/${filename}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    return await response.json();
 }
 
 async function fetchQRSData(filename) {
@@ -302,51 +310,51 @@ function scrollToBottom() {
 }
 
 function disableButton(selector, isDisabled) {
-	const btn = $(selector);
-	if (isDisabled) {
-		btn.attr("disabled", "disabled");
-	} else {
-		btn.removeAttr("disabled");
-	}
+    const btn = $(selector);
+    if (isDisabled) {
+        btn.attr("disabled", "disabled");
+    } else {
+        btn.removeAttr("disabled");
+    }
 }
 
 function showButton(selector, isDisabled) {
-	const btn = $(selector);
-	if (isDisabled) {
-		btn.removeClass("d-none");
-	} else {
-		btn.addClass("d-none");
-	}
+    const btn = $(selector);
+    if (isDisabled) {
+        btn.removeClass("d-none");
+    } else {
+        btn.addClass("d-none");
+    }
 }
 
 function toggleLoadingState(id, isLoading, text, icon) {
-	const btn = $(id);
-	if (isLoading) {
-		btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text}`);
-	} else {
-		btn.html(`<i class="fa-solid ${icon}"></i> ${text}`);
-	}
+    const btn = $(id);
+    if (isLoading) {
+        btn.html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${text}`);
+    } else {
+        btn.html(`<i class="fa-solid ${icon}"></i> ${text}`);
+    }
 }
 
 function clean() {
-	resetForm();
-	$(".graph-area").empty();
-	$("#form_upload_files")[0].reset();
-	disableButton(".btn", false);
-	disableButton(".form-control", false);
-	showButton("#btn_clean", false);
+    resetForm();
+    $(".graph-area").empty();
+    $("#form_upload_files")[0].reset();
+    disableButton(".btn", false);
+    disableButton(".form-control", false);
+    showButton("#btn_clean", false);
 }
 
 function resetGraph() {
-	renderChart(chartData.slice(0, 2000));
-	$('#progress_bar').css('width', 0);
-	$('#progress_bar').attr('aria-valuenow', 0);
-	$("#progress_time").text(`00:00/${formatTime(totalTime)}`);
-	currentIndex = 0;
+    renderChart(chartData.slice(0, 2000));
+    $('#progress_bar').css('width', 0);
+    $('#progress_bar').attr('aria-valuenow', 0);
+    $("#progress_time").text(`00:00/${formatTime(totalTime)}`);
+    currentIndex = 0;
 }
 
 function resetForm() {
-	togglePlayPause();
+    togglePlayPause();
     chart;
     chartData = [];
     currentIndex = 0;
