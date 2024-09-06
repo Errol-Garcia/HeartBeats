@@ -61,7 +61,8 @@ async function handleFileUpload(e) {
 
 		setupChartData(data);
 		cloneTemplate();
-		initializeChart();
+		setupSlider();
+		updateChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
 		isDisabled = true;
@@ -138,98 +139,144 @@ function setupControlButtons() {
     $("#btn_play").on("click", togglePlayPause);
     $("#btn_forward").on("click", forward);
     $("#btn_clean").on("click", clean);
+    $("#time-slider").on("input", sliderInput);
+    $("#progress_bar").on("input", sliderInput);
 }
 
-function initializeChart() {
-    setTimeout(() => {
-        renderChart(chartData.slice(0, 2000));
-        updateProgress();
-    }, 0);
-}
-
-function renderChart(data) {
-	const labels = data.length;
-	const chartOptions = {
-		fullWidth: true,
-		chartPadding: { right: 40 },
-		axisX: {
-			labelInterpolationFnc: function (value, index) {
-				return labels[index];
-			}
-		}
-	};
-
-	chart = new Chartist.Line('.ct-chart', {
-		series: [data]
-	}, chartOptions);
-}
-
-function updateChart() {
-	currentIndex += segmentSize;
-	if (currentIndex >= chartData.length) {
-		clearInterval(interval);
-		currentIndex = chartData.length - segmentSize;
-	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
+function setupSlider() {
+    $('#time-slider').attr('max', 100);
+	$('#time-slider').val(0);
 	updateProgress();
 }
+
+function renderChart(data, labels) {
+	const ctx = $('#ecgChart')[0].getContext('2d');
+	const segmentData = data.map((y, i) => ({ x: i, y: y }));
+
+	if (chart) {
+		chart.destroy(); // Destruye el gráfico anterior si existe
+	}
+
+	chart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			datasets: [{
+				label: `Segment ${currentIndex + 1}`,
+				data: segmentData,
+				borderColor: labels[0] === 1 ? 'red' : 'green',
+				borderWidth: 2,
+				fill: false,
+				pointRadius: 0, // Oculta los puntos
+			}]
+		},
+		options: {
+			scales: {
+				x: {
+					type: 'linear',
+					position: 'bottom',
+					beginAtZero: true,
+					ticks: {
+						callback: function(value) {
+							return `${(value / samplingFrequency).toFixed(2)}s`;
+						}
+					}
+				}
+			},
+			elements: {
+				line: {
+					tension: 0 // Deshabilita el suavizado de líneas
+				}
+			},
+			plugins: {
+				legend: {
+					display: false // Oculta la leyenda si no es necesaria
+				}
+			}
+		}
+	});
+}
+
+
+function updateChart() {
+	if (chartData.length === 0 || arrhythmiaData.length === 0) {
+		console.error('No data to display');
+		return;
+	}
+	
+	const segmentData = chartData[currentIndex];
+	const arrythmiaLabel = arrhythmiaData[currentIndex];
+	if (!segmentData) {
+		console.error('No segment data available');
+		return;
+	}
+	
+	renderChart(segmentData, [arrythmiaLabel]);
+	updateProgress();
+}
+
 
 function togglePlayPause() {
     isPlaying = !isPlaying;
     if (isPlaying) {
-        interval = setInterval(updateChart, 1000);
+        isPlaying = true;
+		clearInterval(interval);
+		interval = setInterval(() => {
+			currentIndex++;
+			if (currentIndex >= chartData.length) {
+				currentIndex = chartData.length - 1;
+				pause();
+			}
+			updateChart();
+		}, 1000); // Update chart every second
         $("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
     } else {
+		isPlaying = false;
         clearInterval(interval);
         $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
     }
 }
 
 function forward() {
-	isPlaying = false;
+	isPlaying = false; //revisar
 	clearInterval(interval);
 	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-	currentIndex += segmentSize;
+	currentIndex++;
 	if (currentIndex >= chartData.length) {
-		currentIndex = chartData.length - segmentSize;
+		currentIndex = chartData.length - 1;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
-	updateProgress();
+	updateChart();
 }
 
 function backward() {
 	isPlaying = false;
 	clearInterval(interval);
 	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-	currentIndex -= segmentSize;
+	currentIndex--;
 	if (currentIndex < 0) {
 		currentIndex = 0;
 	}
-	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
-	updateProgress();
+	updateChart();
 }
 
+function sliderInput(){
+	$('#time-slider').on('input', function() {
+		const newProgress = $(this).val();
+		currentIndex = Math.floor((newProgress / 100) * (chartData.length - 1));
+		updateChart();
+	});
+}
+
+
 function updateProgress() {
-	const progress = (currentIndex / totalSamples) * 100;
-	$('#progress_bar').css('width', progress + '%');
-	$('#progress_bar').attr('aria-valuenow', progress);
+	const progressBar = $('#progress-bar');
+	const progressTime = $('#progress-time');
+	const progress = (currentIndex / (chartData.length - 1)) * 100;
+	progressBar.val(progress);
 
-	const currentTime = currentIndex / samplingFrequency;
-	$("#progress_time").text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
+	const currentTime = currentIndex * (segmentSize / samplingFrequency);
+	progressTime.text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
 
-	if (arrhythmiaData.length > 0) {
-		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
-
-		if(arrhythmiaData[currentSegment - 1] === 0) {
-			$('#form_graph h3').html(`
-				RITMO CARDIACO <span class="badge text-bg-success">normal</span>
-			`);
-		} else {
-			$('#form_graph h3').html(`
-				RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
-			`);
-		}
-	}
+	$('#time-slider').val(progress);
 }
 
 function formatTime(seconds) {
@@ -283,6 +330,7 @@ function resetForm() {
 	togglePlayPause();
     chart;
 	chartData = [];
+	arrhythmiaData = [];
     currentIndex = 0;
     interval;
     segmentSize;
@@ -292,3 +340,4 @@ function resetForm() {
     totalTime;
     currentSegment = 1;
 }
+
