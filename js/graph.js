@@ -44,9 +44,9 @@ async function handleFileUpload(e) {
 	e.preventDefault();
 
 	const formData = new FormData(this);
-	if (appendFilesToFormData(formData) === false) {
-		return;
-	}
+	if (validateEmptyFiles() === false) return;
+	if (validateDifferentFiles() === false) return;
+	appendFilesToFormData(formData);
 
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
@@ -79,19 +79,38 @@ async function handleFileUpload(e) {
 	}
 }
 
-function appendFilesToFormData(formData) {
-	const segxFile = $("#segxFile")[0].files[0];
-    const prdxFile = $("#prdxFile")[0].files[0];
+function validateEmptyFiles() {
+	segxFile = $("#segxFile")[0].files[0];
+	prdxFile = $("#prdxFile")[0].files[0];
 
 	if (!segxFile || !prdxFile) {
-        return false;
-    }
+		return false;
+	}
+}
+
+function validateDifferentFiles() {
+	segxFile = $("#segxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+	prdxFile = $("#prdxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+
+	if (segxFile != prdxFile) {
+		Swal.fire({
+			icon: "error",
+			title: "Oops...",
+			text: "Los archivos cargados deben tener el mismo nombre",
+		});
+		return false;
+	}
+}
+
+function appendFilesToFormData(formData) {
+	segxFile = $("#segxFile")[0].files[0];
+	prdxFile = $("#prdxFile")[0].files[0];
 
 	formData.append("segxFile", segxFile);
 	formData.append("prdxFile", prdxFile);
 }
 
-async function pageLoad(){
+async function pageLoad() {
 	const response = await fetch(`${URL_API}/pageLoad`, {
 		method: "GET",
 		headers: {
@@ -135,17 +154,17 @@ function cloneTemplate() {
 }
 
 function setupControlButtons() {
-    $("#btn_backward").on("click", backward);
-    $("#btn_play").on("click", togglePlayPause);
-    $("#btn_forward").on("click", forward);
-    $("#btn_clean").on("click", clean);
-    $("#time-slider").on("input", sliderInput);
-    $("#progress_bar").on("input", sliderInput);
+	$("#btn_backward").on("click", backward);
+	$("#btn_play").on("click", togglePlayPause);
+	$("#btn_forward").on("click", forward);
+	$("#btn_clean").on("click", clean);
+	$("#time_slider").on("input", sliderInput);
+	$("#progress_bar").on("input", sliderInput);
 }
 
 function setupSlider() {
-    $('#time-slider').attr('max', 100);
-	$('#time-slider').val(0);
+	$('#time_slider').attr('max', 100);
+	$('#time_slider').val(0);
 	updateProgress();
 }
 
@@ -154,7 +173,7 @@ function renderChart(data, labels) {
 	const segmentData = data.map((y, i) => ({ x: i, y: y }));
 
 	if (chart) {
-		chart.destroy(); // Destruye el gráfico anterior si existe
+		chart.destroy();
 	}
 
 	chart = new Chart(ctx, {
@@ -166,7 +185,7 @@ function renderChart(data, labels) {
 				borderColor: labels[0] === 1 ? 'red' : 'green',
 				borderWidth: 2,
 				fill: false,
-				pointRadius: 0, // Oculta los puntos
+				pointRadius: 0,
 			}]
 		},
 		options: {
@@ -176,7 +195,7 @@ function renderChart(data, labels) {
 					position: 'bottom',
 					beginAtZero: true,
 					ticks: {
-						callback: function(value) {
+						callback: function (value) {
 							return `${(value / samplingFrequency).toFixed(2)}s`;
 						}
 					}
@@ -184,60 +203,58 @@ function renderChart(data, labels) {
 			},
 			elements: {
 				line: {
-					tension: 0 // Deshabilita el suavizado de líneas
+					tension: 0
 				}
 			},
 			plugins: {
 				legend: {
-					display: false // Oculta la leyenda si no es necesaria
+					display: false
 				}
 			}
 		}
 	});
 }
 
-
 function updateChart() {
 	if (chartData.length === 0 || arrhythmiaData.length === 0) {
-		console.error('No data to display');
+		console.error('No hay datos para visualizar');
 		return;
 	}
-	
+
 	const segmentData = chartData[currentIndex];
 	const arrythmiaLabel = arrhythmiaData[currentIndex];
 	if (!segmentData) {
-		console.error('No segment data available');
+		console.error('No hay datos de segmento disponibles');
 		return;
 	}
-	
+
 	renderChart(segmentData, [arrythmiaLabel]);
 	updateProgress();
 }
 
-
 function togglePlayPause() {
-    isPlaying = !isPlaying;
-    if (isPlaying) {
-        isPlaying = true;
+	isPlaying = !isPlaying;
+	if (isPlaying) {
+		isPlaying = true;
 		clearInterval(interval);
 		interval = setInterval(() => {
 			currentIndex++;
 			if (currentIndex >= chartData.length) {
 				currentIndex = chartData.length - 1;
-				pause();
+				togglePlayPause();
 			}
 			updateChart();
-		}, 1000); // Update chart every second
-        $("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
-    } else {
+		}, 1000);
+		$("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
+	} else {
 		isPlaying = false;
-        clearInterval(interval);
-        $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-    }
+		clearInterval(interval);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
+	}
 }
 
 function forward() {
-	isPlaying = false; //revisar
+	isPlaying = false;
 	clearInterval(interval);
 	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 	currentIndex++;
@@ -258,25 +275,25 @@ function backward() {
 	updateChart();
 }
 
-function sliderInput(){
-	$('#time-slider').on('input', function() {
+function sliderInput() {
+	$('#time_slider').on('click', function () {
+		isPlaying = false;
+		clearInterval(interval);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 		const newProgress = $(this).val();
 		currentIndex = Math.floor((newProgress / 100) * (chartData.length - 1));
 		updateChart();
 	});
 }
 
-
 function updateProgress() {
-	const progressBar = $('#progress-bar');
-	const progressTime = $('#progress-time');
+	const timeSlider = $('#time_slider')
+	const progressTime = $('#progress_time');
 	const progress = (currentIndex / (chartData.length - 1)) * 100;
-	progressBar.val(progress);
 
 	const currentTime = currentIndex * (segmentSize / samplingFrequency);
 	progressTime.text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
-
-	$('#time-slider').val(progress);
+	timeSlider.val(progress);
 }
 
 function formatTime(seconds) {
@@ -286,8 +303,7 @@ function formatTime(seconds) {
 }
 
 function scrollToBottom() {
-	const container = $('.container-content');
-	container.scrollTop(container[0].scrollHeight);
+	window.location.href = "#title_cardiac_rhythm";
 }
 
 function disableButton(selector, isDisabled) {
@@ -328,16 +344,15 @@ function clean() {
 
 function resetForm() {
 	togglePlayPause();
-    chart;
+	chart;
 	chartData = [];
 	arrhythmiaData = [];
-    currentIndex = 0;
-    interval;
-    segmentSize;
-    samplingFrequency;
-    totalSamples;
-    numSegments;
-    totalTime;
-    currentSegment = 1;
+	currentIndex = 0;
+	interval;
+	segmentSize;
+	samplingFrequency;
+	totalSamples;
+	numSegments;
+	totalTime;
+	currentSegment = 1;
 }
-

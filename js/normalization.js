@@ -25,27 +25,14 @@ function initializeEventListeners() {
 }
 
 function initializeFormValidation() {
-	$.validator.addMethod("filesEqual", function (value, element, params) {
-		function getFileNameWithoutExtension(fileInput) {
-			let fileName = $(fileInput).val().split("\\").pop().split(".")[0];
-			return fileName;
-		}
-
-		let heaFileName = getFileNameWithoutExtension(params[0]);
-		let datFileName = getFileNameWithoutExtension(params[1]);
-		let atrFileName = getFileNameWithoutExtension(params[2]);
-
-		return heaFileName === datFileName && heaFileName === atrFileName;
-	});
-
 	$("#form_upload_files").validate({
-		rs: {
+		rules: {
 			heaFile: { required: true },
 			datFile: { required: true },
 			atrFile: { required: true },
 		},
 		messages: {
-			heaFile: { required: "Por favor cargue un registro", filesEqual: "Los archivos deben tener el mismo nombre" },
+			heaFile: { required: "Por favor cargue un registro" },
 			datFile: { required: "Por favor cargue un registro" },
 			atrFile: { required: "Por favor cargue un registro" },
 		},
@@ -58,9 +45,9 @@ async function handleFileUpload(e) {
 	e.preventDefault();
 
 	const formData = new FormData(this);
-	if (appendFilesToFormData(formData) === false) {
-		return;
-	}
+	if (validateEmptyFiles() === false) return;
+	if (validateDifferentFiles() === false) return;
+	appendFilesToFormData(formData);
 
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
@@ -88,7 +75,7 @@ async function handleFileUpload(e) {
 	} finally {
 		disableButton(".btn", false);
 		disableButton(".form-control", isDisabled);
-        disableButton("#btn_upload", isDisabled);
+		disableButton("#btn_upload", isDisabled);
 		toggleLoadingState("#btn_upload", false, "Cargar", "fa-upload");
 	}
 }
@@ -107,7 +94,7 @@ async function handleNormalization(e) {
 		const data = await fetchNormalizationData(filename[0]);
 		const normalizacion = data.normalizacion;
 		const event = data.event;
-	
+
 		setupDownloadLinks('#btn_download_normalization', normalizacion);
 		setupDownloadLinks('#btn_download_event', event);
 		showButton(".download", true);
@@ -126,21 +113,42 @@ async function handleNormalization(e) {
 	}
 }
 
-function appendFilesToFormData(formData) {
+function validateEmptyFiles() {
 	heaFile = $("#heaFile")[0].files[0];
 	datFile = $("#datFile")[0].files[0];
 	atrFile = $("#atrFile")[0].files[0];
 
 	if (!heaFile || !datFile || !atrFile) {
-        return false;
-    }
+		return false;
+	}
+}
+
+function validateDifferentFiles() {
+	heaFile = $("#heaFile")[0].files[0]["name"].split(".")[0];
+	datFile = $("#datFile")[0].files[0]["name"].split(".")[0];
+	atrFile = $("#atrFile")[0].files[0]["name"].split(".")[0];
+
+	if (heaFile != datFile || heaFile != atrFile) {
+		Swal.fire({
+			icon: "error",
+			title: "Oops...",
+			text: "Los archivos cargados deben tener el mismo nombre",
+		});
+		return false;
+	}
+}
+
+function appendFilesToFormData(formData) {
+	heaFile = $("#heaFile")[0].files[0];
+	datFile = $("#datFile")[0].files[0];
+	atrFile = $("#atrFile")[0].files[0];
 
 	formData.append("heaFile", heaFile);
 	formData.append("datFile", datFile);
 	formData.append("atrFile", atrFile);
 }
 
-async function pageLoad(){
+async function pageLoad() {
 	const response = await fetch(`${URL_API}/pageLoad`, {
 		method: "GET",
 		headers: {
@@ -193,32 +201,32 @@ function cloneTemplate() {
 }
 
 function setupDownloadLinks(id, value) {
-    const path = '../api/files/';
-    $(id).attr('data-path', `${path}${value}`);
+	const path = '../api/files/';
+	$(id).attr('data-path', `${path}${value}`);
 
-    $(id).on('click', function () {
-        var filePath = $(this).data('path');
-        var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
-            href: filePath,
-            download: filePath.split('/').pop()
-        }).appendTo('body');
-        a[0].click();
-        a.remove();
-    });
+	$(id).on('click', function () {
+		var filePath = $(this).data('path');
+		var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
+			href: filePath,
+			download: filePath.split('/').pop()
+		}).appendTo('body');
+		a[0].click();
+		a.remove();
+	});
 }
 
 function setupControlButtons() {
-    $("#btn_backward").on("click", backward);
-    $("#btn_play").on("click", togglePlayPause);
-    $("#btn_forward").on("click", forward);
-    $("#btn_clean").on("click", clean);
+	$("#btn_backward").on("click", backward);
+	$("#btn_play").on("click", togglePlayPause);
+	$("#btn_forward").on("click", forward);
+	$("#btn_clean").on("click", clean);
 }
 
 function initializeChart() {
-    setTimeout(() => {
-        renderChart(chartData.slice(0, 2000));
-        updateProgress();
-    }, 0);
+	setTimeout(() => {
+		renderChart(chartData.slice(0, 2000));
+		updateProgress();
+	}, 0);
 }
 
 function renderChart(data) {
@@ -249,14 +257,14 @@ function updateChart() {
 }
 
 function togglePlayPause() {
-    isPlaying = !isPlaying;
-    if (isPlaying) {
-        interval = setInterval(updateChart, 1000);
-        $("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
-    } else {
-        clearInterval(interval);
-        $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-    }
+	isPlaying = !isPlaying;
+	if (isPlaying) {
+		interval = setInterval(updateChart, 1000);
+		$("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
+	} else {
+		clearInterval(interval);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
+	}
 }
 
 function forward() {
@@ -349,14 +357,14 @@ function resetGraph() {
 
 function resetForm() {
 	togglePlayPause();
-    chart;
+	chart;
 	chartData = [];
-    currentIndex = 0;
-    interval;
-    segmentSize;
-    samplingFrequency;
-    totalSamples;
-    numSegments;
-    totalTime;
-    currentSegment = 1;
+	currentIndex = 0;
+	interval;
+	segmentSize;
+	samplingFrequency;
+	totalSamples;
+	numSegments;
+	totalTime;
+	currentSegment = 1;
 }

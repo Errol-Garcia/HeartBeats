@@ -26,7 +26,7 @@ function initializeEventListeners() {
 
 function initializeFormValidation() {
 	$("#form_upload_files").validate({
-		rs: {
+		rules: {
 			norxFile: { required: true },
 			evtxFile: { required: true },
 			qrsxFile: { required: true },
@@ -45,9 +45,9 @@ async function handleFileUpload(e) {
 	e.preventDefault();
 
 	const formData = new FormData(this);
-	if (appendFilesToFormData(formData) === false) {
-		return;
-	}
+	if (validateEmptyFiles() === false) return;
+	if (validateDifferentFiles() === false) return;
+	appendFilesToFormData(formData);
 
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
@@ -84,7 +84,7 @@ async function handleSegment(e) {
 	e.preventDefault();
 
 	isPlaying = true;
-    togglePlayPause();
+	togglePlayPause();
 	toggleLoadingState("#btn_segment", true, "Segmentando...", null);
 	disableButton(".btn", true);
 
@@ -93,7 +93,7 @@ async function handleSegment(e) {
 	try {
 		const data = await fetchSegmentData(filename);
 		const segment = data.segmentation;
-	
+
 		setupDownloadLinks('#btn_download_segment', segment);
 		showButton(".download", true);
 		resetGraph();
@@ -111,10 +111,29 @@ async function handleSegment(e) {
 	}
 }
 
-function appendFilesToFormData(formData) {
-	formData.append("norxFile", $("#norxFile")[0].files[0]);
-	formData.append("evtxFile", $("#evtxFile")[0].files[0]);
-	formData.append("qrsxFile", $("#qrsxFile")[0].files[0]);
+function validateEmptyFiles() {
+	norxFile = $("#norxFile")[0].files[0];
+	evtxFile = $("#evtxFile")[0].files[0];
+	qrsxFile = $("#qrsxFile")[0].files[0];
+
+	if (!norxFile || !evtxFile || !qrsxFile) {
+		return false;
+	}
+}
+
+function validateDifferentFiles() {
+	norxFile = $("#norxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+	evtxFile = $("#evtxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+	qrsxFile = $("#qrsxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+
+	if (norxFile != evtxFile || norxFile != qrsxFile) {
+		Swal.fire({
+			icon: "error",
+			title: "Oops...",
+			text: "Los archivos cargados deben tener el mismo nombre",
+		});
+		return false;
+	}
 }
 
 function appendFilesToFormData(formData) {
@@ -122,16 +141,12 @@ function appendFilesToFormData(formData) {
 	evtxFile = $("#evtxFile")[0].files[0];
 	qrsxFile = $("#qrsxFile")[0].files[0];
 
-	if (!norxFile || !evtxFile || !qrsxFile) {
-        return false;
-    }
-
 	formData.append("norxFile", norxFile);
 	formData.append("evtxFile", evtxFile);
 	formData.append("qrsxFile", qrsxFile);
 }
 
-async function pageLoad(){
+async function pageLoad() {
 	const response = await fetch(`${URL_API}/pageLoad`, {
 		method: "GET",
 		headers: {
@@ -184,32 +199,32 @@ function cloneTemplate() {
 }
 
 function setupDownloadLinks(id, value) {
-    const path = '../api/files/';
-    $(id).attr('data-path', `${path}${value}`);
+	const path = '../api/files/';
+	$(id).attr('data-path', `${path}${value}`);
 
-    $(id).on('click', function () {
-        var filePath = $(this).data('path');
-        var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
-            href: filePath,
-            download: filePath.split('/').pop()
-        }).appendTo('body');
-        a[0].click();
-        a.remove();
-    });
+	$(id).on('click', function () {
+		var filePath = $(this).data('path');
+		var a = $('<a target="_blank" rel="noopener noreferrer"></a>').attr({
+			href: filePath,
+			download: filePath.split('/').pop()
+		}).appendTo('body');
+		a[0].click();
+		a.remove();
+	});
 }
 
 function setupControlButtons() {
-    $("#btn_backward").on("click", backward);
-    $("#btn_play").on("click", togglePlayPause);
-    $("#btn_forward").on("click", forward);
-    $("#btn_clean").on("click", clean);
+	$("#btn_backward").on("click", backward);
+	$("#btn_play").on("click", togglePlayPause);
+	$("#btn_forward").on("click", forward);
+	$("#btn_clean").on("click", clean);
 }
 
 function initializeChart() {
-    setTimeout(() => {
-        renderChart(chartData.slice(0, 2000));
-        updateProgress();
-    }, 0);
+	setTimeout(() => {
+		renderChart(chartData.slice(0, 2000));
+		updateProgress();
+	}, 0);
 }
 
 function renderChart(data) {
@@ -240,14 +255,14 @@ function updateChart() {
 }
 
 function togglePlayPause() {
-    isPlaying = !isPlaying;
-    if (isPlaying) {
-        interval = setInterval(updateChart, 1000);
-        $("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
-    } else {
-        clearInterval(interval);
-        $("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
-    }
+	isPlaying = !isPlaying;
+	if (isPlaying) {
+		interval = setInterval(updateChart, 1000);
+		$("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
+	} else {
+		clearInterval(interval);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
+	}
 }
 
 function forward() {
@@ -340,14 +355,14 @@ function resetGraph() {
 
 function resetForm() {
 	togglePlayPause();
-    chart;
+	chart;
 	chartData = [];
-    currentIndex = 0;
-    interval;
-    segmentSize;
-    samplingFrequency;
-    totalSamples;
-    numSegments;
-    totalTime;
-    currentSegment = 1;
+	currentIndex = 0;
+	interval;
+	segmentSize;
+	samplingFrequency;
+	totalSamples;
+	numSegments;
+	totalTime;
+	currentSegment = 1;
 }
