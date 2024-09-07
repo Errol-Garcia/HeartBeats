@@ -172,6 +172,15 @@ function renderChart(data, labels) {
 	const ctx = $('#ecgChart')[0].getContext('2d');
 	const segmentData = data.map((y, i) => ({ x: i, y: y }));
 
+	if (labels[0] === 0) {
+		$('#title_cardiac_rhythm').html(`
+			RITMO CARDIACO <span class="badge text-bg-success">normal</span>
+		`);
+	} else {
+		$('#title_cardiac_rhythm').html(`
+			RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
+		`);
+	}
 	if (chart) {
 		chart.destroy();
 	}
@@ -294,6 +303,9 @@ function updateProgress() {
 	const currentTime = currentIndex * (segmentSize / samplingFrequency);
 	progressTime.text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
 	timeSlider.val(progress);
+	if (arrhythmiaData.length > 0) {
+		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
+	}
 }
 
 function formatTime(seconds) {

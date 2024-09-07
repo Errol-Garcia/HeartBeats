@@ -84,7 +84,7 @@ def predict(filename):
 
     etiquetas = np.loadtxt(os.path.join(app.config['UPLOAD_FOLDER'], f'etiquetas-{filename}.dat')).tolist()
 
-    ecg_signal = X_new.flatten().tolist()
+    ecg_signal = X_new.tolist()
 
     response = {
         'data': ecg_signal,
