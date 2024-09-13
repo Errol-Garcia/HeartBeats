@@ -12,6 +12,7 @@ let totalTime;
 let currentSegment = 1;
 let isPlaying = false;
 let arrhythmiaData = [];
+let countArrhythmia = 0;
 let filename;
 
 $(document).ready(function () {
@@ -64,6 +65,7 @@ async function handleFileUpload(e) {
 		setupSlider();
 		updateChart();
 		setupControlButtons();
+		addTotalArrythmia();
 		showButton("#btn_clean", true);
 		isDisabled = true;
 
@@ -143,6 +145,7 @@ function setupChartData(data) {
 	totalSamples = data.total_samples;
 	chartData = data.data;
 	arrhythmiaData = data.arrhythmia;
+	countArrhythmia = arrhythmiaData.reduce((acc, num) => acc + num, 0);
 	numSegments = data.num_segments;
 	totalTime = totalSamples / samplingFrequency;
 }
@@ -168,19 +171,20 @@ function setupSlider() {
 	updateProgress();
 }
 
-function renderChart(data, labels) {
+function renderChart(data, labels, index) {
 	const ctx = $('#ecgChart')[0].getContext('2d');
 	const segmentData = data.map((y, i) => ({ x: i, y: y }));
 
 	if (labels[0] === 0) {
 		$('#title_cardiac_rhythm').html(`
-			RITMO CARDIACO <span class="badge text-bg-success">normal</span>
+			RITMO CARDIACO <span class="badge text-bg-success">latido ${index+1} normal</span>
 		`);
 	} else {
 		$('#title_cardiac_rhythm').html(`
-			RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
+			RITMO CARDIACO <span class="badge text-bg-danger">latido ${index+1} arritmia</span>
 		`);
 	}
+
 	if (chart) {
 		chart.destroy();
 	}
@@ -232,13 +236,20 @@ function updateChart() {
 
 	const segmentData = chartData[currentIndex];
 	const arrythmiaLabel = arrhythmiaData[currentIndex];
+	
 	if (!segmentData) {
 		console.error('No hay datos de segmento disponibles');
 		return;
 	}
 
-	renderChart(segmentData, [arrythmiaLabel]);
+	renderChart(segmentData, [arrythmiaLabel], currentIndex);
 	updateProgress();
+}
+
+function addTotalArrythmia() {
+	$('#total_arrhythmia').html(`
+		Latidos: <span class="badge text-bg-success">${arrhythmiaData.length+1}</span> Arrirmias: <span class="badge text-bg-danger">${countArrhythmia}</span>
+	`);
 }
 
 function togglePlayPause() {

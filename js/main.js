@@ -12,6 +12,7 @@ let totalTime;
 let currentSegment = 1;
 let isPlaying = false;
 let arrhythmiaData = [];
+let countArrhythmia = 0;
 let filename;
 
 $(document).ready(function () {
@@ -95,15 +96,15 @@ async function handlePrediction(e) {
 		const data = await fetchPredictionData(filename[0]);
 		chartData = data.data;
 		arrhythmiaData = data.arrhythmia;
-        chart = null;
-		$("#graph-area").empty();
-		// isDisabled = true;
-		// resetForm()
-		// setupChartData2(data);
+		countArrhythmia = arrhythmiaData.reduce((acc, num) => acc + num, 0);
+		chart = null;
+
+		$(".graph-area").empty();
 		cloneTemplate2();
 		setupSlider();
 		updateChart2();
 		setupControlButtons2();
+		addTotalArrythmia();
 		showButton("#btn_clean", true);
 		isDisabled = true;
 
@@ -205,22 +206,24 @@ function cloneTemplate() {
 	var clone = $(template).find('#form_predict_arrhythmia').clone();
 	$(".graph-area").append(clone);
 }
+
 function cloneTemplate2() {
 	var template = $('#template_graph_area2').prop('content');
 	var clone = $(template).find('#form_graph').clone();
-	$(".graph-area2").append(clone);
+	$(".graph-area").append(clone);
 }
+
 function setupControlButtons() {
 	$("#btn_backward").on("click", backward);
 	$("#btn_play").on("click", togglePlayPause);
 	$("#btn_forward").on("click", forward);
 	$("#btn_clean").on("click", clean);
 }
+
 function setupControlButtons2() {
-	$("#btn_backward2").on("click", backward2);
-	$("#btn_play2").on("click", togglePlayPause2);
-	$("#btn_forward2").on("click", forward2);
-	$("#btn_clean2").on("click", clean);
+	$("#btn_backward").on("click", backward2);
+	$("#btn_play").on("click", togglePlayPause2);
+	$("#btn_forward").on("click", forward2);
 	$("#time_slider").on("input", sliderInput);
 	$("#progress_bar").on("input", sliderInput);
 }
@@ -255,17 +258,17 @@ function renderChart(data) {
 	}, chartOptions);
 }
 
-function renderChart2(data, labels) {
-	const ctx = $('#ecgChart2')[0].getContext('2d');
+function renderChart2(data, labels, index) {
+	const ctx = $('#ecgChart')[0].getContext('2d');
 	const segmentData = data.map((y, i) => ({ x: i, y: y }));
 
 	if (labels[0] === 0) {
 		$('#title_cardiac_rhythm').html(`
-			RITMO CARDIACO <span class="badge text-bg-success">normal</span>
+			RITMO CARDIACO <span class="badge text-bg-success">latido ${index+1} normal</span>
 		`);
 	} else {
 		$('#title_cardiac_rhythm').html(`
-			RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
+			RITMO CARDIACO <span class="badge text-bg-danger">latido ${index+1} arritmia</span>
 		`);
 	}
 
@@ -312,12 +315,19 @@ function renderChart2(data, labels) {
 	});
 }
 
+function addTotalArrythmia() {
+	$('#total_arrhythmia').html(`
+		Latidos: <span class="badge text-bg-success">${arrhythmiaData.length+1}</span> Arrirmias: <span class="badge text-bg-danger">${countArrhythmia}</span>
+	`);
+}
+
 function updateChart() {
 	currentIndex += segmentSize;
 	if (currentIndex >= chartData.length) {
 		clearInterval(interval);
 		currentIndex = chartData.length - segmentSize;
 	}
+	
 	renderChart(chartData.slice(currentIndex, currentIndex + 2000));
 	updateProgress();
 }
@@ -330,12 +340,13 @@ function updateChart2() {
 
 	const segmentData = chartData[currentIndex];
 	const arrythmiaLabel = arrhythmiaData[currentIndex];
+
 	if (!segmentData) {
 		console.error('No hay datos de segmento disponibles');
 		return;
 	}
 
-	renderChart2(segmentData, [arrythmiaLabel]);
+	renderChart2(segmentData, [arrythmiaLabel], currentIndex);
 	updateProgress2();
 }
 
@@ -363,11 +374,11 @@ function togglePlayPause2() {
 			}
 			updateChart2();
 		}, 1000);
-		$("#btn_play2").html(`<i class="fa-solid fa-pause"></i>`);
+		$("#btn_play").html(`<i class="fa-solid fa-pause"></i>`);
 	} else {
 		isPlaying = false;
 		clearInterval(interval);
-		$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 	}
 }
 
@@ -386,7 +397,7 @@ function forward() {
 function forward2() {
 	isPlaying = false;
 	clearInterval(interval);
-	$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 	currentIndex++;
 	if (currentIndex >= chartData.length) {
 		currentIndex = chartData.length - 1;
@@ -409,7 +420,7 @@ function backward() {
 function backward2() {
 	isPlaying = false;
 	clearInterval(interval);
-	$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+	$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 	currentIndex--;
 	if (currentIndex < 0) {
 		currentIndex = 0;
@@ -421,7 +432,7 @@ function sliderInput() {
 	$('#time_slider').on('click', function () {
 		isPlaying = false;
 		clearInterval(interval);
-		$("#btn_play2").html(`<i class="fa-solid fa-play"></i>`);
+		$("#btn_play").html(`<i class="fa-solid fa-play"></i>`);
 		const newProgress = $(this).val();
 		currentIndex = Math.floor((newProgress / 100) * (chartData.length - 1));
 		updateChart2();
@@ -435,25 +446,11 @@ function updateProgress() {
 
 	const currentTime = currentIndex / samplingFrequency;
 	$("#progress_time").text(`${formatTime(currentTime)}/${formatTime(totalTime)}`);
-
-	if (arrhythmiaData.length > 0) {
-		currentSegment = Math.floor(currentIndex / segmentSize) + 1;
-
-		if (arrhythmiaData[currentSegment - 1] === 0) {
-			$('#form_predict_arrhythmia h3').html(`
-				RITMO CARDIACO <span class="badge text-bg-success">normal</span>
-			`);
-		} else {
-			$('#form_predict_arrhythmia h3').html(`
-				RITMO CARDIACO <span class="badge text-bg-danger">arritmia</span>
-			`);
-		}
-	}
 }
 
 function updateProgress2() {
 	const timeSlider = $('#time_slider')
-	const progressTime = $('#progress_time2');
+	const progressTime = $('#progress_time');
 	const progress = (currentIndex / (chartData.length - 1)) * 100;
 
 	const currentTime = currentIndex * (segmentSize / samplingFrequency);
@@ -472,8 +469,7 @@ function formatTime(seconds) {
 }
 
 function scrollToBottom() {
-	const container = $('.container-content');
-	container.scrollTop(container[0].scrollHeight);
+	window.location.href = "#title_cardiac_rhythm";
 }
 
 function disableButton(selector, isDisabled) {
@@ -506,7 +502,6 @@ function toggleLoadingState(id, isLoading, text, icon) {
 function clean() {
 	resetForm();
 	$(".graph-area").empty();
-	$(".graph-area2").empty();
 	$("#form_upload_files")[0].reset();
 	disableButton(".btn", false);
 	disableButton(".form-control", false);
