@@ -339,12 +339,7 @@ function toggleLoadingState(id, isLoading, text, icon) {
 }
 
 function clean() {
-	resetForm();
-	$(".graph-area").empty();
-	$("#form_upload_files")[0].reset();
-	disableButton(".btn", false);
-	disableButton(".form-control", false);
-	showButton("#btn_clean", false);
+	window.location.reload();	
 }
 
 function resetGraph() {
