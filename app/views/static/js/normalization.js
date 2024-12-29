@@ -1,4 +1,5 @@
-const URL_API = 'http://127.0.0.1:5003/api';
+const URL_API = 'http://localhost:5003/api';
+const PATH = '../static/storage/';
 
 let chart;
 let chartData = [];
@@ -14,7 +15,6 @@ let isPlaying = false;
 let filename;
 
 $(document).ready(function () {
-	pageLoad();
 	initializeEventListeners();
 	initializeFormValidation();
 });
@@ -148,15 +148,6 @@ function appendFilesToFormData(formData) {
 	formData.append("atrFile", atrFile);
 }
 
-async function pageLoad() {
-	const response = await fetch(`${URL_API}/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
-}
-
 async function uploadFiles(formData) {
 	const response = await fetch(`${URL_API}/upload`, {
 		method: "POST",
@@ -201,8 +192,7 @@ function cloneTemplate() {
 }
 
 function setupDownloadLinks(id, value) {
-	const path = '../api/files/';
-	$(id).attr('data-path', `${path}${value}`);
+	$(id).attr('data-path', `${PATH}${value}`);
 
 	$(id).on('click', function () {
 		var filePath = $(this).data('path');

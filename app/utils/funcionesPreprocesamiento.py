@@ -4,11 +4,14 @@ from wfdb import processing
 import heartpy as hp
 import statistics as stats
 import numpy as np
+import os
+
+UPLOAD_FOLDER = './app/views/static/storage/'
 
 # Funcion para llamar los registros
 def llamado(registr):
-    registro = f'./files/{registr}'
-    print(registro)
+    file_path = os.path.join(UPLOAD_FOLDER, registr)
+    registro = file_path
     size=650000
 
     registro= str(registro)
@@ -35,7 +38,8 @@ def normalizacion(data):
 
 # Funcion para detectar el segmento QRS
 def detectorQRS(registr):
-    registro = f'./files/{registr}'
+    file_path = os.path.join(UPLOAD_FOLDER, registr)
+    registro = file_path
     record = wfdb.rdrecord(registro, channels=[0], physical=False)
     qrs_locs = processing.gqrs_detect(d_sig=record.d_signal[:,0], fs=record.fs, adc_gain=record.adc_gain[0], adc_zero=record.adc_zero[0])
     fs=record.fs

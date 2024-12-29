@@ -1,4 +1,4 @@
-const URL_API = 'http://127.0.0.1:5003/api';
+const URL_API = 'http://localhost:5003/api';
 
 let chart;
 let chartData = [];
@@ -16,7 +16,6 @@ let countArrhythmia = 0;
 let filename;
 
 $(document).ready(function () {
-	pageLoad();
 	initializeEventListeners();
 	initializeFormValidation();
 });
@@ -153,15 +152,6 @@ function appendFilesToFormData(formData) {
 	formData.append("heaFile", heaFile);
 	formData.append("datFile", datFile);
 	formData.append("atrFile", atrFile);
-}
-
-async function pageLoad() {
-	const response = await fetch(`${URL_API}/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
 }
 
 async function uploadFiles(formData) {

@@ -1,4 +1,5 @@
-const URL_API = 'http://127.0.0.1:5003/api';
+const URL_API = 'http://localhost:5003/api';
+const PATH = '../static/storage/';
 
 let chart;
 let chartData = [];
@@ -14,7 +15,6 @@ let isPlaying = false;
 let filename;
 
 $(document).ready(function () {
-	pageLoad();
 	initializeEventListeners();
 	initializeFormValidation();
 });
@@ -27,10 +27,14 @@ function initializeEventListeners() {
 function initializeFormValidation() {
 	$("#form_upload_files").validate({
 		rules: {
-			segxFile: { required: true },
+			norxFile: { required: true },
+			evtxFile: { required: true },
+			qrsxFile: { required: true },
 		},
 		messages: {
-			segxFile: { required: "Por favor cargue un registro" },
+			norxFile: { required: "Por favor cargue un registro" },
+			evtxFile: { required: "Por favor cargue un registro" },
+			qrsxFile: { required: "Por favor cargue un registro" },
 		},
 		highlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
 		unhighlight: (element) => $(element).parents(".col-sm-10").toggleClass("has-error has-success"),
@@ -42,25 +46,27 @@ async function handleFileUpload(e) {
 
 	const formData = new FormData(this);
 	if (validateEmptyFiles() === false) return;
+	if (validateDifferentFiles() === false) return;
 	appendFilesToFormData(formData);
 
 	toggleLoadingState("#btn_upload", true, "Cargando...", null);
 	disableButton(".btn", true);
 	disableButton(".form-control", true);
 
-	var isDisabled = false;
+	let isDisabled = false;
 
 	try {
 		const response = await uploadFiles(formData);
 		filename = response.filename;
-		const data = await fetchSegmentedData(filename);
+		console.log(filename);
+		const data = await fetchNormalizedData(filename);
 
 		setupChartData(data);
 		cloneTemplate();
 		initializeChart();
 		setupControlButtons();
 		showButton("#btn_clean", true);
-		$("#form_predict").submit(handlePredict);
+		$("#form_segment").submit(handleSegment);
 		isDisabled = true;
 
 		scrollToBottom();
@@ -75,58 +81,70 @@ async function handleFileUpload(e) {
 	}
 }
 
-async function handlePredict(e) {
+async function handleSegment(e) {
 	e.preventDefault();
 
 	isPlaying = true;
 	togglePlayPause();
-	toggleLoadingState("#btn_predict", true, "Prediciendo...", null);
+	toggleLoadingState("#btn_segment", true, "Segmentando...", null);
 	disableButton(".btn", true);
 
 	var isDisabled = false;
 
 	try {
-		const data = await fetchPredictData(filename);
-		const predict = data.prediction;
+		const data = await fetchSegmentData(filename);
+		const segment = data.segmentation;
 
-		setupDownloadLinks('#btn_download_predict', predict);
+		setupDownloadLinks('#btn_download_segment', segment);
 		showButton(".download", true);
 		resetGraph();
 		isDisabled = true;
 
 		scrollToBottom();
 	} catch (error) {
-		console.error("Error al predecir: ", error);
+		console.error("Error al segmentar: ", error);
 		isDisabled = false;
 	} finally {
 		disableButton(".btn", false);
 		disableButton("#btn_upload", isDisabled);
-		disableButton("#btn_predict", isDisabled);
-		toggleLoadingState("#btn_predict", false, "Predecir", "fa-heart-pulse");
+		disableButton("#btn_segment", isDisabled);
+		toggleLoadingState("#btn_segment", false, "Segmentar", "fa-heart-pulse");
 	}
 }
 
 function validateEmptyFiles() {
-	segxFile = $("#segxFile")[0].files[0];
+	norxFile = $("#norxFile")[0].files[0];
+	evtxFile = $("#evtxFile")[0].files[0];
+	qrsxFile = $("#qrsxFile")[0].files[0];
 
-	if (!segxFile) {
+	if (!norxFile || !evtxFile || !qrsxFile) {
+		return false;
+	}
+}
+
+function validateDifferentFiles() {
+	norxFile = $("#norxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+	evtxFile = $("#evtxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+	qrsxFile = $("#qrsxFile")[0].files[0]["name"].split("-")[1].split(".")[0];
+
+	if (norxFile != evtxFile || norxFile != qrsxFile) {
+		Swal.fire({
+			icon: "error",
+			title: "Oops...",
+			text: "Los archivos cargados deben tener el mismo nombre",
+		});
 		return false;
 	}
 }
 
 function appendFilesToFormData(formData) {
-	segxFile = $("#segxFile")[0].files[0];
+	norxFile = $("#norxFile")[0].files[0];
+	evtxFile = $("#evtxFile")[0].files[0];
+	qrsxFile = $("#qrsxFile")[0].files[0];
 
-	formData.append("segxFile", segxFile);
-}
-
-async function pageLoad() {
-	const response = await fetch(`${URL_API}/pageLoad`, {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json"
-		}
-	});
+	formData.append("norxFile", norxFile);
+	formData.append("evtxFile", evtxFile);
+	formData.append("qrsxFile", qrsxFile);
 }
 
 async function uploadFiles(formData) {
@@ -137,8 +155,8 @@ async function uploadFiles(formData) {
 	return await response.json();
 }
 
-async function fetchSegmentedData(filename) {
-	const response = await fetch(`${URL_API}/segmented/${filename}`, {
+async function fetchNormalizedData(filename) {
+	const response = await fetch(`${URL_API}/normalized/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -147,8 +165,8 @@ async function fetchSegmentedData(filename) {
 	return await response.json();
 }
 
-async function fetchPredictData(filename) {
-	const response = await fetch(`${URL_API}/predictonly/${filename}`, {
+async function fetchSegmentData(filename) {
+	const response = await fetch(`${URL_API}/segment/${filename}`, {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json"
@@ -168,13 +186,12 @@ function setupChartData(data) {
 
 function cloneTemplate() {
 	var template = $('#template_graph_area').prop('content');
-	var clone = $(template).find('#form_predict').clone();
+	var clone = $(template).find('#form_segment').clone();
 	$(".graph-area").append(clone);
 }
 
 function setupDownloadLinks(id, value) {
-	const path = '../api/files/';
-	$(id).attr('data-path', `${path}${value}`);
+	$(id).attr('data-path', `${PATH}${value}`);
 
 	$(id).on('click', function () {
 		var filePath = $(this).data('path');

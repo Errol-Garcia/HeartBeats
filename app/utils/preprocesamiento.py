@@ -1,5 +1,8 @@
 import numpy as np
-from funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
+import os
+from .funcionesPreprocesamiento import llamado, normalizacion, detectorQRS, Binarizacion, filtro, segmentacion, completar, ajusteDatos
+
+UPLOAD_FOLDER = './app/views/static/storage/'
 
 def inicio(nombreArchivo):
     #se definen Variables
@@ -59,6 +62,7 @@ def inicio(nombreArchivo):
     #se ajusta los segmentos de datos para que tengan la misma longitud
     dtsCom=ajusteDatos(dtsCom)
 
-    np.savetxt(f'./files/datos-{nombreArchivo}.dat',dtsCom)
+    file_path = os.path.join(UPLOAD_FOLDER, f'datos-{nombreArchivo}.dat')
+    np.savetxt(file_path, dtsCom)
 
     return dtsCom,etqCom

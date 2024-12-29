@@ -1,5 +1,11 @@
-/.vscode
-/api/__pycache__/
-/api/*.py[cod]
-/api/files
-/api/env
+venv/
+env/
+.vscode/
+storage/
+
+.env
+
+__pycache__/
+*.py[cod]
+
+.pytest_cache/

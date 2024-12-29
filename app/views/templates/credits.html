@@ -1,0 +1,49 @@
+{% extends './layout.html' %}
+
+{% block title %}Predicción de arritmias cardíacas | Créditos{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/credits.js') }}"></script>
+{% endblock %}
+
+{% block main %}
+<div class="container-fluid">
+    <div class="card-container">
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/foto_errol.webp') }}" alt="Foto de Errol">
+            <div class="card-body">
+                <h5 class="card-title">Errol Garcia</h5>
+                <p class="card-text"><i class="fas fa-phone"></i> +57 314 841 6719</p>
+                <p class="card-text"><i class="fas fa-envelope"></i> errolgsilva@gmail.com</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/foto_jhon.webp') }}" alt="Foto de Jhon">
+            <div class="card-body">
+                <h5 class="card-title">Jhon España</h5>
+                <p class="card-text"><i class="fas fa-phone"></i> +57 324 565 3149</p>
+                <p class="card-text"><i class="fas fa-envelope"></i> jhonnycan212@gmail.com</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/foto_hector.webp') }}" alt="Foto de Hector">
+            <div class="card-body">
+                <h5 class="card-title">Hector Mora</h5>
+                <p class="card-text"><i class="fas fa-phone"></i> +57 317 253 7641</p>
+                <p class="card-text"><i class="fas fa-envelope"></i> hmora2@udenar.edu.co</p>
+            </div>
+        </div>
+        <div class="card">
+            <img src="{{ url_for('static', filename='images/foto_ricardo.webp') }}" alt="Foto de Ricardo">
+            <div class="card-body">
+                <h5 class="card-title">Ricardo Timaran</h5>
+                <p class="card-text"><i class="fas fa-envelope"></i> ritimar@udenar.edu.co</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block template %}
+{% endblock %}
